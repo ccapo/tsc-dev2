@@ -248,7 +248,7 @@ BossAI::~BossAI() {}
 
 bool BossAI::Update(Object *owner)
 {
-	static int style = 1;
+	static bool first = false;
 	static float elapsed = 1.0f/50.0f;
 
 	if( owner->entity && owner->entity->IsDead() ) return false;
@@ -269,22 +269,27 @@ bool BossAI::Update(Object *owner)
 	{
       	owner->entity->displacement = 0.0f;
 
-		// Switch to Random Walk 5% of the time
-		//style = rng->getInt(0,100) <= 5 ? 0 : 1;
-
-		switch( style )
+		if( !engine->player->entity->IsDead() )
 		{
-			case 0:
+			int dx = owner->x.get(0) - engine->player->x.get(0), dy = owner->y.get(0) - engine->player->y.get(0);
+			if( dx*dx + dy*dy < 100 && !owner->entity->hasCondition(Condition::CON_CONFUSION) )
 			{
-				RandomWalk(owner);
-				break;
+				first = true;
+				ChaseOrAttack(owner, engine->player->x.get(0), engine->player->y.get(0));
 			}
-			case 1:
+			else
 			{
+				if( first )
+				{
+					first = false;
+					PatternCollections(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
+				}
 				WalkPattern(owner);
-				break;
 			}
-			default: break;
+		}
+		else
+		{
+			RandomWalk(owner);
 		}
 	}
 
@@ -360,27 +365,101 @@ void BossAI::WalkPattern(Object *owner)
 
 void BossAI::ListPattern(Object *owner, int &x, int &y)
 {
+	static bool second = false;
 	static int patternCounter = 0, patternMax = 0;
 	static int stepCounter = 0, stepMax = 0;
+	Map *map = &engine->map[engine->mapID];
 
 	patternMax = patternList.size();
 	stepMax = patternData[patternCounter].size();
 
-	x += patternData[patternCounter][stepCounter].x;
-	y += patternData[patternCounter][stepCounter].y;
+	int dx = patternData[patternCounter][stepCounter].x;
+	int dy = patternData[patternCounter][stepCounter].y;
+
+	owner->obstructs = false;
+	bool obstructed = map->IsObstructed(owner->x.get(0) + dx, owner->y.get(0) + dy);
+	for(int j = 1; j < owner->sym.size(); j++)
+	{
+		obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx, owner->y.get(j) + dy);
+	}
+	owner->obstructs = true;
+
+	if( !obstructed )
+	{
+		x += dx;
+		y += dy;
+	}
 	owner->entity->base_stats.spd += patternData[patternCounter][stepCounter].spd;
 
 	stepCounter = (stepCounter + 1) % stepMax;
 	if( stepCounter == 0 )
 	{
 		patternCounter = (patternCounter + 1) % patternMax;
-		if( patternCounter == 0 ) PatternCollections(rng->getInt(BOSS_PATTERN_01, NPATTERNTYPES - 1));
+		if( patternCounter == 0 )
+		{
+			if( second )
+			{
+				second = false;
+				PatternCollections(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
+			}
+			else
+			{
+				second = true;
+			}
+		}
 	}
 }
 
 void BossAI::ChaseOrAttack(Object *owner, int targetx, int targety)
 {
+	int ox = owner->x.get(0), oy = owner->y.get(0);
+	int dx = targetx - ox;
+	int dy = targety - oy;
+	int stepdx = (dx > 0 ? 1: -1);
+	int stepdy = (dy > 0 ? 1: -1);
+	float distance = sqrtf(dx*dx + dy*dy);
+	Map *map = &engine->map[engine->mapID];
 
+	if( distance > sqrt(2.0f) && distance <= 10.0f )
+	{
+		dx = (int)(round(dx/distance));
+		dy = (int)(round(dy/distance));
+		if( !map->IsObstructed(ox + dx, oy + dy) )
+		{
+			ox += dx;
+			oy += dy;
+		}
+		else if( !map->IsObstructed(ox + stepdx, oy) )
+		{
+			ox += stepdx;
+		}
+		else if( !map->IsObstructed(ox, oy + stepdy) )
+		{
+			oy += stepdy;
+		}
+	}
+
+	dx = ox - owner->x.get(0);
+	dy = oy - owner->y.get(0);
+	if( dx != 0 || dy != 0 )
+	{
+		for(int i = 0; i < owner->sym.size(); i++)
+		{
+			map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
+			map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
+		}
+		map->Action(owner, ox, oy);
+		if( !owner->entity->IsDead() )
+		{
+			for(int i = 0; i < owner->sym.size(); i++)
+			{
+				owner->cell.set(map->GetCell(owner->x.get(i), owner->y.get(i)), i);
+				map->SetCreature(owner->x.get(i), owner->y.get(i));
+			}
+		}
+	}
+
+	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 }
 
 NpcAI::NpcAI() {}

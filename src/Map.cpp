@@ -645,7 +645,7 @@ void Map::AddBoss(int x, int y)
 	Health health = Health(100, 100, -50);
 	boss->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
 	boss->container = new Container(10);
-	boss->entity->ai = new BossAI(rng->getInt(BossAI::BOSS_PATTERN_01, BossAI::NPATTERNTYPES - 1));
+	boss->entity->ai = new BossAI(rng->getInt(BossAI::VERTICAL_PATTERN, BossAI::NPATTERNTYPES - 1));
 	objects.push(boss);
 	for(int i = 0; i < boss->sym.size(); i++) SetCreature(boss->x.get(i), boss->y.get(i));
 }

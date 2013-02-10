@@ -70,11 +70,19 @@ class BossAI: public AI
 	};
 	enum PatternType
 	{
-		BOSS_PATTERN_01,
-		BOSS_PATTERN_02,
-		BOSS_PATTERN_03,
-		BOSS_PATTERN_04,
-		BOSS_PATTERN_05,
+		VERTICAL_PATTERN,
+		HORIZONTAL_PATTERN,
+		PLUS_PATTERN,
+		X_PATTERN,
+		ASTERISK_PATTERN,
+		LEFT_ACUTE_ANGLE_PATTERN,
+		RIGHT_ACUTE_ANGLE_PATTERN,
+		TRIANGLE_PATTERN,
+		INVERTED_TRIANGLE_PATTERN,
+		DUMBBELL_PATTERN,
+		ZIGZAG_DUMBBELL_PATTERN,
+		SQUARE_COVERLEAF_PATTERN,
+		SPIRAL_ZIGZAG_PATTERN,
 		NPATTERNTYPES
 	};
 	TCODList<int> patternList;
@@ -88,7 +96,6 @@ class BossAI: public AI
 	protected:
 	void RandomWalk(Object *owner);
 	void WalkPattern(Object *owner);
-	void LinearPattern(Object *owner, int &x, int &y);
 	void ListPattern(Object *owner, int &x, int &y);
 	void ChaseOrAttack(Object *owner, int targetx, int targety);
 
@@ -103,11 +110,156 @@ class BossAI: public AI
 
 		switch( type )
 		{
-			case BOSS_PATTERN_01:
+			case VERTICAL_PATTERN:
+			{
+				// Vertical Pattern
+				patternList.push(MOVE_UP);
+				patternList.push(MOVE_DOWN);
+				patternList.push(MOVE_DOWN);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case HORIZONTAL_PATTERN:
+			{
+				// Horizontal Pattern
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case PLUS_PATTERN:
+			{
+				// Plus Pattern
+				patternList.push(MOVE_UP);
+				patternList.push(MOVE_DOWN);
+				patternList.push(MOVE_DOWN);
+				patternList.push(MOVE_UP);
+
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_LEFT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case X_PATTERN:
+			{
+				// Plus Pattern
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_DOWN_LEFT);
+				patternList.push(MOVE_DOWN_LEFT);
+				patternList.push(MOVE_UP_RIGHT);
+
+				patternList.push(MOVE_UP_LEFT);
+				patternList.push(MOVE_DOWN_RIGHT);
+				patternList.push(MOVE_DOWN_RIGHT);
+				patternList.push(MOVE_UP_LEFT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case ASTERISK_PATTERN:
+			{
+				// Asterisk Pattern
+				patternList.push(MOVE_UP);
+				patternList.push(MOVE_DOWN);
+
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_DOWN_LEFT);
+
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_LEFT);
+
+				patternList.push(MOVE_DOWN_RIGHT);
+				patternList.push(MOVE_UP_LEFT);
+
+				patternList.push(MOVE_DOWN);
+				patternList.push(MOVE_UP);
+
+				patternList.push(MOVE_DOWN_LEFT);
+				patternList.push(MOVE_UP_RIGHT);
+
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_RIGHT);
+
+				patternList.push(MOVE_UP_LEFT);
+				patternList.push(MOVE_DOWN_RIGHT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case LEFT_ACUTE_ANGLE_PATTERN:
+			{
+				// Left Acute Angle Pattern
+				patternList.push(MOVE_UP_LEFT);
+				patternList.push(MOVE_UP_LEFT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case RIGHT_ACUTE_ANGLE_PATTERN:
+			{
+				// Right Acute Angle Pattern
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_LEFT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case TRIANGLE_PATTERN:
+			{
+				// Triangle Pattern
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_DOWN_RIGHT);
+				patternList.push(MOVE_DOWN_RIGHT);
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_LEFT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case INVERTED_TRIANGLE_PATTERN:
+			{
+				// Inverted Triangle Pattern
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_RIGHT);
+				patternList.push(MOVE_DOWN_LEFT);
+				patternList.push(MOVE_DOWN_LEFT);
+				patternList.push(MOVE_UP_LEFT);
+				patternList.push(MOVE_UP_LEFT);
+
+				//patternList.push(DONT_MOVE);
+				//patternList.push(DONT_MOVE);
+				break;
+			}
+			case DUMBBELL_PATTERN:
 			{
 				// Dumbbell Pattern
 				patternList.push(MOVE_LEFT);
+				patternList.push(MOVE_LEFT);
 				patternList.push(CIRCLE_COUNTERCLOCKWISE);
+				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(CIRCLE_CLOCKWISE);
 
@@ -115,7 +267,7 @@ class BossAI: public AI
 				//patternList.push(DONT_MOVE);
 				break;
 			}
-			case BOSS_PATTERN_02:
+			case ZIGZAG_DUMBBELL_PATTERN:
 			{
 				// Zig-Zag Dumbbell Pattern
 				patternList.push(ZIGZAG_LEFT);
@@ -127,7 +279,7 @@ class BossAI: public AI
 				//patternList.push(DONT_MOVE);
 				break;
 			}
-			case BOSS_PATTERN_03:
+			case SQUARE_COVERLEAF_PATTERN:
 			{
 				// Square Coverleaf Pattern
 				patternList.push(MOVE_UP);
@@ -154,13 +306,15 @@ class BossAI: public AI
 				//patternList.push(DONT_MOVE);
 				break;
 			}
-			case BOSS_PATTERN_04:
+			case SPIRAL_ZIGZAG_PATTERN:
 			{
 				// Spiral Zig-Zag Pattern
 				patternList.push(SPIRAL_OUT);
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(ZIGZAG_DOWN);
+				patternList.push(MOVE_UP_RIGHT);
+				patternList.push(MOVE_UP_RIGHT);
 
 				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
