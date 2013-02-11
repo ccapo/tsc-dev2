@@ -641,7 +641,7 @@ void Map::AddBoss(int x, int y)
 	xlist.push(x + 1); ylist.push(y + 1); symlist.push(CHAR_DEMONLORD_RED_LR);
 
 	Object *boss = new Object(xlist, ylist, symlist, TCODColor::white, "Red Demon Lord", 1000.0f, true);
-	Stats stats = Stats(100, 1, 1, 1, 25, 100, 0, 0, 0, 0);
+	Stats stats = Stats(100, 10, 10, 10, 25, 100, 5, 5, 5, 5);
 	Health health = Health(100, 100, -50);
 	boss->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
 	boss->container = new Container(10);

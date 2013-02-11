@@ -24,6 +24,7 @@ class Object
 
 	// Basic Attributes
 	TCODList<int> x, y;				// Object's position list on the map
+	float xc, yc;					// Object's central position on the map
 	TCODList<int> sym;				// Object's symbol list on the map
 	TCODColor colour;				// Object's colour on the map
 	const char *name;				// Object's name

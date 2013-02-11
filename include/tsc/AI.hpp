@@ -94,10 +94,8 @@ class BossAI: public AI
 	bool Update(Object *owner);
 
 	protected:
-	void RandomWalk(Object *owner);
 	void WalkPattern(Object *owner);
 	void ListPattern(Object *owner, int &x, int &y);
-	void ChaseOrAttack(Object *owner, int targetx, int targety);
 
 	// Pattern Collections
 	void PatternCollections(int type)

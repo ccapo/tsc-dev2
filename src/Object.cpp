@@ -2,7 +2,16 @@
 
 Object::Object(TCODList<int> x, TCODList<int> y, TCODList<int> sym, const TCODColor &colour, const char *name, float mass, bool obstructs): x(x), y(y), sym(sym), colour(colour), name(name), mass(mass), obstructs(obstructs), counter(-1), consumable(NULL), container(NULL), entity(NULL), traversable(NULL), wearable(NULL), wieldable(NULL)
 {
-	for(int i = 0; i < sym.size(); i++) cell.push(engine->map[engine->mapID].GetCell(x.get(i), y.get(i)));
+	xc = 0.0f;
+	yc = 0.0f;
+	for(int i = 0; i < sym.size(); i++)
+	{
+		xc += x.get(i);
+		yc += y.get(i);
+		cell.push(engine->map[engine->mapID].GetCell(x.get(i), y.get(i)));
+	}
+	xc /= static_cast<float>(sym.size());
+	yc /= static_cast<float>(sym.size());
 }
 
 Object::~Object()

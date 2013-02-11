@@ -18,6 +18,8 @@ Floor::Floor()
 // Floor Feature: Movement
 void Floor::Action(Object *owner, int x, int y)
 {
+	owner->xc = 0.0f;
+	owner->yc = 0.0f;
 	int x0 = owner->x.get(0), y0 = owner->y.get(0);
 	for(int i = 0; i < owner->sym.size(); i++)
 	{
@@ -25,7 +27,11 @@ void Floor::Action(Object *owner, int x, int y)
 		int dy = owner->y.get(i) - y0;
 		owner->x.set(x + dx,i);
 		owner->y.set(y + dy,i);
+		owner->xc += owner->x.get(i);
+		owner->yc += owner->y.get(i);
 	}
+	owner->xc /= static_cast<float>(owner->sym.size());
+	owner->yc /= static_cast<float>(owner->sym.size());
 
 	if( owner == engine->player )
 	{
@@ -66,6 +72,8 @@ void Floor::Action(Object *owner, int x, int y)
 		if( tunnel && tunnel->traversable && engine->key.vk == TCODK_ENTER )
 		{
 			owner->entity->mapID = tunnel->traversable->mapID;
+			owner->xc = 0.0f;
+			owner->yc = 0.0f;
 			int x0 = owner->x.get(0), y0 = owner->y.get(0);
 			for(int i = 0; i < owner->sym.size(); i++)
 			{
@@ -73,7 +81,11 @@ void Floor::Action(Object *owner, int x, int y)
 				int dy = owner->y.get(i) - y0;
 				owner->x.set(tunnel->traversable->xTo + dx,i);
 				owner->y.set(tunnel->traversable->yTo + dy,i);
+				owner->xc += owner->x.get(i);
+				owner->yc += owner->y.get(i);
 			}
+			owner->xc /= static_cast<float>(owner->sym.size());
+			owner->yc /= static_cast<float>(owner->sym.size());
 			engine->key.vk = TCODK_NONE;
 		}
 	}
@@ -116,6 +128,8 @@ void Door::Action(Object *owner, int x, int y)
 {
 	if( open )
 	{
+		owner->xc = 0.0f;
+		owner->yc = 0.0f;
 		int x0 = owner->x.get(0), y0 = owner->y.get(0);
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
@@ -123,7 +137,11 @@ void Door::Action(Object *owner, int x, int y)
 			int dy = owner->y.get(i) - y0;
 			owner->x.set(x + dx,i);
 			owner->y.set(x + dy,i);
+			owner->xc += owner->x.get(i);
+			owner->yc += owner->y.get(i);
 		}
+		owner->xc /= static_cast<float>(owner->sym.size());
+		owner->yc /= static_cast<float>(owner->sym.size());
 	}
 	else
 	{
@@ -188,6 +206,8 @@ void Trap::Action(Object *owner, int x, int y)
 
 	if( trapType != INVISIBLEBARRIER )
 	{
+		owner->xc = 0.0f;
+		owner->yc = 0.0f;
 		int x0 = owner->x.get(0), y0 = owner->y.get(0);
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
@@ -195,7 +215,11 @@ void Trap::Action(Object *owner, int x, int y)
 			int dy = owner->y.get(i) - y0;
 			owner->x.set(x + dx,i);
 			owner->y.set(x + dy,i);
+			owner->xc += owner->x.get(i);
+			owner->yc += owner->y.get(i);
 		}
+		owner->xc /= static_cast<float>(owner->sym.size());
+		owner->yc /= static_cast<float>(owner->sym.size());
 	}
 
 	if( !activated || trapType == INVISIBLEBARRIER )
@@ -204,6 +228,8 @@ void Trap::Action(Object *owner, int x, int y)
 		{
 			engine->map[engine->mapID].SetFeatureActivated(xTo, yTo, true);
 			owner->entity->mapID = mapID;
+			owner->xc = 0.0f;
+			owner->yc = 0.0f;
 			int x0 = owner->x.get(0), y0 = owner->y.get(0);
 			for(int i = 0; i < owner->sym.size(); i++)
 			{
@@ -211,7 +237,11 @@ void Trap::Action(Object *owner, int x, int y)
 				int dy = owner->y.get(i) - y0;
 				owner->x.set(xTo + dx,i);
 				owner->y.set(xTo + dy,i);
+				owner->xc += owner->x.get(i);
+				owner->yc += owner->y.get(i);
 			}
+			owner->xc /= static_cast<float>(owner->sym.size());
+			owner->yc /= static_cast<float>(owner->sym.size());
 		}
 		else
 		{

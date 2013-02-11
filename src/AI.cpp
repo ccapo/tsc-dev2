@@ -117,8 +117,8 @@ bool CreatureAI::Update(Object *owner)
 
 		if( !engine->player->entity->IsDead() )
 		{
-			int dx = owner->x.get(0) - engine->player->x.get(0), dy = owner->y.get(0) - engine->player->y.get(0);
-			if( dx*dx + dy*dy < 100 && !owner->entity->hasCondition(Condition::CON_CONFUSION) )
+			float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc;
+			if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CON_CONFUSION) )
 			{
 				ChaseOrAttack(owner, engine->player->x.get(0), engine->player->y.get(0));
 			}
@@ -248,7 +248,6 @@ BossAI::~BossAI() {}
 
 bool BossAI::Update(Object *owner)
 {
-	static bool first = false;
 	static float elapsed = 1.0f/50.0f;
 
 	if( owner->entity && owner->entity->IsDead() ) return false;
@@ -271,72 +270,15 @@ bool BossAI::Update(Object *owner)
 
 		if( !engine->player->entity->IsDead() )
 		{
-			int dx = owner->x.get(0) - engine->player->x.get(0), dy = owner->y.get(0) - engine->player->y.get(0);
-			if( dx*dx + dy*dy < 100 && !owner->entity->hasCondition(Condition::CON_CONFUSION) )
-			{
-				first = true;
-				ChaseOrAttack(owner, engine->player->x.get(0), engine->player->y.get(0));
-			}
-			else
-			{
-				if( first )
-				{
-					first = false;
-					PatternCollections(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
-				}
-				WalkPattern(owner);
-			}
+			float dx = owner->xc - engine->player->xc;
+			float dy = owner->yc - engine->player->yc;
+			float distance = sqrtf(dx*dx + dy*dy);
+			if( distance <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 		}
-		else
-		{
-			RandomWalk(owner);
-		}
+		WalkPattern(owner);
 	}
 
 	return true;
-}
-
-void BossAI::RandomWalk(Object *owner)
-{
-	static const int dx[NBLOCK] = {-1,  0, +1, -1, 0, +1, -1,  0, +1};
-	static const int dy[NBLOCK] = {-1, -1, -1,  0, 0,  0, +1, +1, +1};
-	Map *map = &engine->map[engine->mapID];
-
-	int i = rng->getInt(0, NBLOCK - 1);
-	owner->obstructs = false;
-	bool obstructed = map->IsObstructed(owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-	for(int j = 1; j < owner->sym.size(); j++)
-	{
-		obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
-	}
-	while( obstructed )
-	{
-		i = rng->getInt(0, NBLOCK - 1);
-		obstructed = map->IsObstructed(owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-		for(int j = 1; j < owner->sym.size(); j++)
-		{
-			obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
-		}
-	}
-	owner->obstructs = true;
-
-	if( dx[i] != 0 || dy[i] != 0 )
-	{
-		for(int j = 0; j < owner->sym.size(); j++)
-		{
-			map->SetCell(owner->x.get(j), owner->y.get(j), owner->cell.get(j));
-			map->SetFeatureActivated(owner->x.get(j), owner->y.get(j), false);
-		}
-		map->Action(owner, owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-		if( !owner->entity->IsDead() )
-		{
-			for(int j = 0; j < owner->sym.size(); j++)
-			{
-				owner->cell.set(map->GetCell(owner->x.get(j), owner->y.get(j)), j);
-				map->SetCreature(owner->x.get(j), owner->y.get(j));
-			}
-		}
-	}
 }
 
 void BossAI::WalkPattern(Object *owner)
@@ -408,58 +350,6 @@ void BossAI::ListPattern(Object *owner, int &x, int &y)
 			}
 		}
 	}
-}
-
-void BossAI::ChaseOrAttack(Object *owner, int targetx, int targety)
-{
-	int ox = owner->x.get(0), oy = owner->y.get(0);
-	int dx = targetx - ox;
-	int dy = targety - oy;
-	int stepdx = (dx > 0 ? 1: -1);
-	int stepdy = (dy > 0 ? 1: -1);
-	float distance = sqrtf(dx*dx + dy*dy);
-	Map *map = &engine->map[engine->mapID];
-
-	if( distance > sqrt(2.0f) && distance <= 10.0f )
-	{
-		dx = (int)(round(dx/distance));
-		dy = (int)(round(dy/distance));
-		if( !map->IsObstructed(ox + dx, oy + dy) )
-		{
-			ox += dx;
-			oy += dy;
-		}
-		else if( !map->IsObstructed(ox + stepdx, oy) )
-		{
-			ox += stepdx;
-		}
-		else if( !map->IsObstructed(ox, oy + stepdy) )
-		{
-			oy += stepdy;
-		}
-	}
-
-	dx = ox - owner->x.get(0);
-	dy = oy - owner->y.get(0);
-	if( dx != 0 || dy != 0 )
-	{
-		for(int i = 0; i < owner->sym.size(); i++)
-		{
-			map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
-			map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
-		}
-		map->Action(owner, ox, oy);
-		if( !owner->entity->IsDead() )
-		{
-			for(int i = 0; i < owner->sym.size(); i++)
-			{
-				owner->cell.set(map->GetCell(owner->x.get(i), owner->y.get(i)), i);
-				map->SetCreature(owner->x.get(i), owner->y.get(i));
-			}
-		}
-	}
-
-	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 }
 
 NpcAI::NpcAI() {}
