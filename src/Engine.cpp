@@ -315,13 +315,13 @@ void Engine::Startup()
 	TCODList<int> xlist, ylist, symlist;
 	xlist.push(x); ylist.push(y); symlist.push(CHAR_PLAYER_RIGHT);
 	player = new Object(xlist, ylist, symlist, TCODColor::white, "The Player", 100.0f, true);
-	Stats player_stats = Stats(25, 8, 4, 10, 25, 15, 4, 2, 2, 1);
+	Stats player_stats = Stats(25, 8, 4, 10, 10, 15, 4, 2, 2, 1);
 	Health player_health = Health(player_stats.hpmax, player_stats.mpmax, 100);
 	player->entity = new Entity(player_stats, player_health, CHAR_SKULL, TCODColor::darkRed, "Your Corpse");
 	player->entity->ai = new PlayerAI();
 	Stats stats = Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-	Health health = Health(0, 1, 0);
-	player->entity->conditions->addToFront(new Condition(Condition::CON_MP_REGEN, -1, 5*FPSMAX, stats, health, NULL, NULL, NULL));
+	Health health = Health(0, player_stats.acu, 0);
+	player->entity->conditions->addToFront(new Condition(Condition::CON_MP_REGEN, -1, 10*FPSMAX - 5*player_stats.wil, stats, health, NULL, NULL, NULL));
 	player->container = new Container(0);
 
 	Object *item;

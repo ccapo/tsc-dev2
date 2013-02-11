@@ -2,15 +2,15 @@
 
 void Entity::Attack(Object *owner, Object *target)
 {
-	TCODColor col = TCODColor::lightGrey;
-	if( owner == engine->player ) col = TCODColor::blue;
+	TCODColor colour = TCODColor::lightGrey;
+	if( owner == engine->player ) colour = TCODColor::blue;
 
 	if( target->entity && !target->entity->IsDead() )
 	{
-		int damage = target->entity->TakeDamage(stats.ap);
+		int damage = target->entity->TakeDamage(stats.ap + stats.str/2 + stats.spd/4);
 		if( damage > 0 )
 		{
-			engine->gui->MessageLog(col, "%s Attacks %s", owner->name, target->name);
+			engine->gui->MessageLog(colour, "%s Attacks %s", owner->name, target->name);
 			if( target->entity->IsDead() )
 			{
 				owner->entity->health.xp += target->entity->health.xp;
@@ -19,14 +19,14 @@ void Entity::Attack(Object *owner, Object *target)
 		}
 		else
 		{
-			engine->gui->MessageLog(col, "%s Attacks %s In Vain", owner->name, target->name);			
+			engine->gui->MessageLog(colour, "%s Attacks %s In Vain", owner->name, target->name);			
 		}
 	}
 }
 
 int Entity::TakeDamage(int amount)
 {
-	amount -= stats.dp;
+	amount -= stats.dp + stats.str/2 + stats.spd/4;
 	if( amount > 0 )
 	{
 		health.hp -= amount;
@@ -117,14 +117,32 @@ void Entity::updateConditions(Object *owner)
 			owner->entity->health += condition->health;
 			owner->entity->health.hp = Clamp<int>(owner->entity->health.hp, 0, owner->entity->stats.hpmax);
 			owner->entity->health.mp = Clamp<int>(owner->entity->health.mp, 0, owner->entity->stats.mpmax);
-			if( condition->type == Condition::CON_POISON ) owner->colour = TCODColor::green;
-			if( condition->type == Condition::CON_POISON_ANTIDOTE && hasCondition(Condition::CON_POISON) )
+
+			switch( condition->type )
 			{
-				Condition *con = getCondition(Condition::CON_POISON);
-				owner->entity->conditions->remove(con);
-				owner->colour = TCODColor::white;
+				case Condition::CON_MP_REGEN:
+				{
+					condition->health.mp = owner->entity->stats.acu;
+					condition->interval = 10*FPSMAX - 5*owner->entity->stats.wil;
+					break;
+				}
+				case Condition::CON_POISON_ANTIDOTE:
+				{
+					if( hasCondition(Condition::CON_POISON) )
+					{
+						Condition *con = getCondition(Condition::CON_POISON);
+						owner->entity->conditions->remove(con);
+						owner->colour = TCODColor::white;
+					}
+					break;
+				}
+				case Condition::CON_POISON:
+				{
+					owner->colour = TCODColor::green;
+					break;
+				}
+				default: break;
 			}
-			//if( condition->type == Condition::CON_MP_REGEN ) 
 		}
 		else
 		{

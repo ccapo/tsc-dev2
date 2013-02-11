@@ -241,6 +241,8 @@ bool BossAI::Update(Object *owner)
 	{
       	owner->entity->displacement = 0.0f;
 
+		WalkPattern(owner);
+
 		if( !engine->player->entity->IsDead() )
 		{
 			float dx = owner->xc - engine->player->xc;
@@ -248,7 +250,7 @@ bool BossAI::Update(Object *owner)
 			float distance = sqrtf(dx*dx + dy*dy);
 			if( distance <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 		}
-		WalkPattern(owner);
+
 	}
 
 	return true;
