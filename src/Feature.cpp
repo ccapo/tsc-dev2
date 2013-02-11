@@ -18,8 +18,7 @@ Floor::Floor()
 // Floor Feature: Movement
 void Floor::Action(Object *owner, int x, int y)
 {
-	owner->xc = 0.0f;
-	owner->yc = 0.0f;
+	owner->xc = 0.0f; owner->yc = 0.0f;
 	int x0 = owner->x.get(0), y0 = owner->y.get(0);
 	for(int i = 0; i < owner->sym.size(); i++)
 	{
@@ -72,8 +71,7 @@ void Floor::Action(Object *owner, int x, int y)
 		if( tunnel && tunnel->traversable && engine->key.vk == TCODK_ENTER )
 		{
 			owner->entity->mapID = tunnel->traversable->mapID;
-			owner->xc = 0.0f;
-			owner->yc = 0.0f;
+			owner->xc = 0.0f; owner->yc = 0.0f;
 			int x0 = owner->x.get(0), y0 = owner->y.get(0);
 			for(int i = 0; i < owner->sym.size(); i++)
 			{
@@ -128,8 +126,7 @@ void Door::Action(Object *owner, int x, int y)
 {
 	if( open )
 	{
-		owner->xc = 0.0f;
-		owner->yc = 0.0f;
+		owner->xc = 0.0f; owner->yc = 0.0f;
 		int x0 = owner->x.get(0), y0 = owner->y.get(0);
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
@@ -206,8 +203,7 @@ void Trap::Action(Object *owner, int x, int y)
 
 	if( trapType != INVISIBLEBARRIER )
 	{
-		owner->xc = 0.0f;
-		owner->yc = 0.0f;
+		owner->xc = 0.0f; owner->yc = 0.0f;
 		int x0 = owner->x.get(0), y0 = owner->y.get(0);
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
@@ -226,10 +222,9 @@ void Trap::Action(Object *owner, int x, int y)
 	{
 		if( trapType == DARKTUNNEL )
 		{
-			engine->map[engine->mapID].SetFeatureActivated(xTo, yTo, true);
+			engine->map[engine->mapID].Activated(xTo, yTo, true);
 			owner->entity->mapID = mapID;
-			owner->xc = 0.0f;
-			owner->yc = 0.0f;
+			owner->xc = 0.0f; owner->yc = 0.0f;
 			int x0 = owner->x.get(0), y0 = owner->y.get(0);
 			for(int i = 0; i < owner->sym.size(); i++)
 			{
@@ -260,11 +255,7 @@ void Trap::Action(Object *owner, int x, int y)
 
 		if( owner->entity->IsDead() )
 		{
-			for(int i = 0; i < owner->sym.size(); i++)
-			{
-				owner->cell.set(engine->map[engine->mapID].GetCell(owner->x.get(i), owner->y.get(i)), i);
-				engine->map[engine->mapID].SetCreature(owner->x.get(i), owner->y.get(i));
-			}
+			for(int i = 0; i < owner->sym.size(); i++) engine->map[engine->mapID].SetCreature(owner->x.get(i), owner->y.get(i));
 			owner->entity->Death(owner);
 		}
 	}

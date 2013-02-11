@@ -321,7 +321,7 @@ void Engine::Startup()
 	player->entity->ai = new PlayerAI();
 	Stats stats = Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	Health health = Health(0, 1, 0);
-	player->entity->conditions->addToFront(new Condition(Condition::CON_NONE, -1, 5*FPSMAX, stats, health, NULL, NULL, NULL));
+	player->entity->conditions->addToFront(new Condition(Condition::CON_MP_REGEN, -1, 5*FPSMAX, stats, health, NULL, NULL, NULL));
 	player->container = new Container(0);
 
 	Object *item;

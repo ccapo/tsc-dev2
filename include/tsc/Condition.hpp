@@ -15,6 +15,8 @@ class Condition
 		// Positive Stats Modification
 		CON_HP_PLUS,					// Increased HP
 		CON_MP_PLUS,					// Increased MP
+		CON_HP_REGEN,					// HP Regenerate
+		CON_MP_REGEN,					// MP Regenerate
 		CON_STR_PLUS,					// Increased Strength
 		CON_SPD_PLUS,					// Increased Speed
 		CON_WIL_PLUS,					// Increased Willpower

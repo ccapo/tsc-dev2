@@ -18,7 +18,7 @@ class Object
 		TRAVERSABLE,
 		WEARABLE,
 		WIELDABLE,
-		WRECKAGE,
+		MISC,
 		NOBJECTTYPES
 	};
 
@@ -31,7 +31,6 @@ class Object
 	float mass;						// Object's mass
 	bool obstructs;					// Does this object obstruct?
 	int counter;					// Object's animation counter
-	TCODList<Cell> cell;			// Previous cell information list
 
 	// Optional Attributes
 	Consumable *consumable;			// Pointer to Consumable Attribute

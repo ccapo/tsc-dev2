@@ -266,7 +266,7 @@ void Map::Render()
 	{
 		for(int y = 0; y < height; y++)
 		{
-			TCODConsole::root->setCharBackground(x, y, CellColour(x, y));
+			TCODConsole::root->setCharBackground(x, y, Colour(x, y));
 		}
 	}
 }
@@ -283,7 +283,7 @@ void Map::GetItemChances(int caveType)
 			object_chances.insert(pair<int, int>(Object::ENTITY,		10));
 			object_chances.insert(pair<int, int>(Object::WIELDABLE,		10));
 			object_chances.insert(pair<int, int>(Object::WEARABLE,		10));
-			object_chances.insert(pair<int, int>(Object::WRECKAGE,		10));
+			object_chances.insert(pair<int, int>(Object::MISC,			10));
 			break;
 		}
 		case Engine::CAVETYPE_02:
@@ -294,7 +294,7 @@ void Map::GetItemChances(int caveType)
 			object_chances.insert(pair<int, int>(Object::ENTITY,		10));
 			object_chances.insert(pair<int, int>(Object::WIELDABLE,		10));
 			object_chances.insert(pair<int, int>(Object::WEARABLE,		10));
-			object_chances.insert(pair<int, int>(Object::WRECKAGE,		10));
+			object_chances.insert(pair<int, int>(Object::MISC,			10));
 			break;
 		}
 		case Engine::CAVETYPE_03:
@@ -305,7 +305,7 @@ void Map::GetItemChances(int caveType)
 			object_chances.insert(pair<int, int>(Object::ENTITY,		10));
 			object_chances.insert(pair<int, int>(Object::WIELDABLE,		10));
 			object_chances.insert(pair<int, int>(Object::WEARABLE,		10));
-			object_chances.insert(pair<int, int>(Object::WRECKAGE,		10));
+			object_chances.insert(pair<int, int>(Object::MISC,			10));
 			break;
 		}
 		case Engine::CAVETYPE_04:
@@ -316,7 +316,7 @@ void Map::GetItemChances(int caveType)
 			object_chances.insert(pair<int, int>(Object::ENTITY,		10));
 			object_chances.insert(pair<int, int>(Object::WIELDABLE,		10));
 			object_chances.insert(pair<int, int>(Object::WEARABLE,		10));
-			object_chances.insert(pair<int, int>(Object::WRECKAGE,		10));
+			object_chances.insert(pair<int, int>(Object::MISC,			10));
 			break;
 		}
 		default: break;
@@ -366,41 +366,41 @@ void Map::GetCreatureChances(int caveType)
 		case Engine::CAVETYPE_01:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(AI::ORC,		30));
-			object_chances.insert(pair<int, int>(AI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(AI::WARG,		30));
-			object_chances.insert(pair<int, int>(AI::TROLL,		5));
-			object_chances.insert(pair<int, int>(AI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
+			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
 			break;
 		}
 		case Engine::CAVETYPE_02:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(AI::ORC,		30));
-			object_chances.insert(pair<int, int>(AI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(AI::WARG,		30));
-			object_chances.insert(pair<int, int>(AI::TROLL,		5));
-			object_chances.insert(pair<int, int>(AI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
+			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
 			break;
 		}
 		case Engine::CAVETYPE_03:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(AI::ORC,		30));
-			object_chances.insert(pair<int, int>(AI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(AI::WARG,		30));
-			object_chances.insert(pair<int, int>(AI::TROLL,		5));
-			object_chances.insert(pair<int, int>(AI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
+			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
 			break;
 		}
 		case Engine::CAVETYPE_04:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(AI::ORC,		30));
-			object_chances.insert(pair<int, int>(AI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(AI::WARG,		30));
-			object_chances.insert(pair<int, int>(AI::TROLL,		5));
-			object_chances.insert(pair<int, int>(AI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
+			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
+			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
 			break;
 		}
 		default: break;
@@ -524,7 +524,7 @@ void Map::AddItem(int x, int y)
 			break;
 		}
 		// A Pile Of Rubble
-		case Object::WRECKAGE:
+		case Object::MISC:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_RUBBLE_PILE);
 			Object *item = new Object(xlist, ylist, symlist, TCODColor::white, "A Pile Of Rubble", 2.0f, false);
@@ -548,7 +548,7 @@ void Map::AddCreature(int x, int y)
 	switch( creatureType )
 	{
 		// Orc
-		case AI::ORC:
+		case CreatureAI::ORC:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORC_PEON);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "An Orc", 0.5f, true);
@@ -564,7 +564,7 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Goblin
-		case AI::GOBLIN:
+		case CreatureAI::GOBLIN:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_GOBLIN_PEON);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Goblin", 0.5f, true);
@@ -580,7 +580,7 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Warg
-		case AI::WARG:
+		case CreatureAI::WARG:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_VERMIN_BROWN);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Warg", 0.75f, true);
@@ -596,7 +596,7 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Troll
-		case AI::TROLL:
+		case CreatureAI::TROLL:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORGE_PEON_GREEN);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Troll", 1.5f, true);
@@ -612,7 +612,7 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Demon
-		case AI::DEMON:
+		case CreatureAI::DEMON:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_DEMON_PEON);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Demon", 0.5f, true);

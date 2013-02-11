@@ -8,7 +8,6 @@ Object::Object(TCODList<int> x, TCODList<int> y, TCODList<int> sym, const TCODCo
 	{
 		xc += x.get(i);
 		yc += y.get(i);
-		cell.push(engine->map[engine->mapID].GetCell(x.get(i), y.get(i)));
 	}
 	xc /= static_cast<float>(sym.size());
 	yc /= static_cast<float>(sym.size());

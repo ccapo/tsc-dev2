@@ -8,8 +8,21 @@
 class Cell
 {
 	public:
-	Feature *feature;				// Feature of this cell
-	Cell(): feature(new Floor()) {}
+	Feature *feature;				// Current Feature of this cell
+	Feature *feature_initial;		// Initial Feature of this cell
+
+	Cell(): feature(new Floor()), feature_initial(new Floor()) {}
+	Cell(Feature *feature): feature(feature), feature_initial(feature) {}
+	~Cell()
+	{
+		if( feature ) delete feature;
+		if( feature_initial ) delete feature_initial;
+	}
+
+	void revert()
+	{
+		feature = feature_initial;
+	}
 };
  
 class Map
@@ -36,16 +49,16 @@ class Map
 	inline void Action(Object *owner, int x, int y){ cells[x + y*width].feature->Action(owner, x, y); }
 	inline int CellType(int x, int y) const { return cells[x + y*width].feature->cellType; }
 	inline int TrapType(int x, int y) const { return cells[x + y*width].feature->trapType; }
-	inline TCODColor CellColour(int x, int y) const { return cells[x + y*width].feature->colour; }
-	//inline void SetCellColour(int x, int y, TCODColor colour) { cells[x + y*width].feature->colour = colour; }
-	inline bool GetFeatureActivated(int x, int y) const { return cells[x + y*width].feature->activated; }
-	inline void SetFeatureActivated(int x, int y, bool lvalue) { cells[x + y*width].feature->activated = lvalue; }
-
-	inline Cell GetCell(int x, int y) const { return cells[x + y*width]; }
-	inline void SetCell(int x, int y, Cell cell){ cells[x + y*width] = cell; }
-	inline void SetFloor(int x, int y){ cells[x + y*width].feature = new Floor(); }
-	inline void SetDoor(int x, int y){ cells[x + y*width].feature = new Door(); }
-	inline void SetTrap(int x, int y, int type, int mapID = -1, int xTo = -1, int yTo = -1){ cells[x + y*width].feature = new Trap(type, mapID, xTo, yTo); }
+	inline TCODColor Colour(int x, int y) const { return cells[x + y*width].feature->colour; }
+	inline void Colour(int x, int y, TCODColor colour) { cells[x + y*width].feature->colour = colour; }
+	inline bool Activated(int x, int y) const { return cells[x + y*width].feature->activated; }
+	inline void Activated(int x, int y, bool lvalue) { cells[x + y*width].feature->activated = lvalue; }
+	inline bool Explored(int x, int y) const { return cells[x + y*width].feature->explored; }
+	inline void Explored(int x, int y, bool lvalue) { cells[x + y*width].feature->explored = lvalue; }
+	inline void RevertCell(int x, int y){ cells[x + y*width].revert(); }
+	inline void SetFloor(int x, int y){ Cell *cell = new Cell(new Floor()); cells[x + y*width] = *cell; }
+	inline void SetDoor(int x, int y){ Cell *cell = new Cell(new Door()); cells[x + y*width] = *cell; }
+	inline void SetTrap(int x, int y, int type, int mapID = -1, int xTo = -1, int yTo = -1){ Cell *cell = new Cell(new Trap(type, mapID, xTo, yTo)); cells[x + y*width] = *cell; }
 	inline void SetCreature(int x, int y){ cells[x + y*width].feature = new Creature(); }
 	inline void SetNpc(int x, int y){ cells[x + y*width].feature = new Npc(); }
 

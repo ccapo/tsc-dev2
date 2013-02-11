@@ -1,9 +1,5 @@
 #include "Main.hpp"
 
-PlayerAI::PlayerAI() {}
-
-PlayerAI::~PlayerAI() {}
-
 bool PlayerAI::Update(Object *owner)
 {
 	static float elapsed = 1.0f/50.0f;
@@ -62,19 +58,12 @@ bool PlayerAI::Update(Object *owner)
 	{
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
-			map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
-			map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
 	}
 	map->Action(owner, owner->x.get(0) + dx, owner->y.get(0) + dy);
 	engine->mapID = static_cast<Engine::CaveTypes>(owner->entity->mapID);
-	if( dx != 0 || dy != 0 )
-	{
-		for(int i = 0; i < owner->sym.size(); i++)
-		{
-			owner->cell.set(map->GetCell(owner->x.get(i), owner->y.get(i)), i);
-		}
-	}
 
 	return true;
 }
@@ -88,10 +77,6 @@ void PlayerAI::UpdateConfused(Object *owner, int &dx, int &dy)
 		owner->sym = rng->getInt(CHAR_PLAYER_RIGHT, CHAR_PLAYER_UP);
 	}
 }
-
-CreatureAI::CreatureAI() {}
-
-CreatureAI::~CreatureAI() {}
 
 bool CreatureAI::Update(Object *owner)
 {
@@ -170,17 +155,13 @@ void CreatureAI::RandomWalk(Object *owner)
 	{
 		for(int j = 0; j < owner->sym.size(); j++)
 		{
-			map->SetCell(owner->x.get(j), owner->y.get(j), owner->cell.get(j));
-			map->SetFeatureActivated(owner->x.get(j), owner->y.get(j), false);
+			map->RevertCell(owner->x.get(j), owner->y.get(j));
+			map->Activated(owner->x.get(j), owner->y.get(j), false);
 		}
 		map->Action(owner, owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
 		if( !owner->entity->IsDead() )
 		{
-			for(int j = 0; j < owner->sym.size(); j++)
-			{
-				owner->cell.set(map->GetCell(owner->x.get(j), owner->y.get(j)), j);
-				map->SetCreature(owner->x.get(j), owner->y.get(j));
-			}
+			for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
 		}
 	}
 }
@@ -220,31 +201,23 @@ void CreatureAI::ChaseOrAttack(Object *owner, int targetx, int targety)
 	{
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
-			map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
-			map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
 		map->Action(owner, ox, oy);
 		if( !owner->entity->IsDead() )
 		{
-			for(int i = 0; i < owner->sym.size(); i++)
-			{
-				owner->cell.set(map->GetCell(owner->x.get(i), owner->y.get(i)), i);
-				map->SetCreature(owner->x.get(i), owner->y.get(i));
-			}
+			for(int i = 0; i < owner->sym.size(); i++) map->SetCreature(owner->x.get(i), owner->y.get(i));
 		}
 	}
 
 	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 }
 
-BossAI::BossAI() {}
-
 BossAI::BossAI(int type)
 {
 	PatternCollections(type);
 }
-
-BossAI::~BossAI() {}
 
 bool BossAI::Update(Object *owner)
 {
@@ -291,17 +264,13 @@ void BossAI::WalkPattern(Object *owner)
 
 	for(int j = 0; j < owner->sym.size(); j++)
 	{
-		map->SetCell(owner->x.get(j), owner->y.get(j), owner->cell.get(j));
-		map->SetFeatureActivated(owner->x.get(j), owner->y.get(j), false);
+		map->RevertCell(owner->x.get(j), owner->y.get(j));
+		map->Activated(owner->x.get(j), owner->y.get(j), false);
 	}
 	map->Action(owner, x, y);
 	if( !owner->entity->IsDead() )
 	{
-		for(int j = 0; j < owner->sym.size(); j++)
-		{
-			owner->cell.set(map->GetCell(owner->x.get(j), owner->y.get(j)), j);
-			map->SetCreature(owner->x.get(j), owner->y.get(j));
-		}
+		for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
 	}
 }
 
@@ -351,10 +320,6 @@ void BossAI::ListPattern(Object *owner, int &x, int &y)
 		}
 	}
 }
-
-NpcAI::NpcAI() {}
-
-NpcAI::~NpcAI() {}
 
 bool NpcAI::Update(Object *owner)
 {
@@ -417,17 +382,13 @@ void NpcAI::MoveToTarget(Object *owner, int targetx, int targety)
 	{
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
-			map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
-			map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
-			map->Action(owner, owner->x.get(i) + dx, owner->y.get(i) + dy);
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
+		map->Action(owner, ox, oy);
 		if( !owner->entity->IsDead() )
 		{
-			for(int i = 0; i < owner->sym.size(); i++)
-			{
-				owner->cell.set(map->GetCell(owner->x.get(i), owner->y.get(i)), i);
-				map->SetNpc(owner->x.get(i), owner->y.get(i));
-			}
+			for(int i = 0; i < owner->sym.size(); i++) map->SetNpc(owner->x.get(i), owner->y.get(i));
 		}
 	}
 }

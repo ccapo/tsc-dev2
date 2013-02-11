@@ -93,8 +93,8 @@ void Entity::Death(Object *owner)
 	// Reset the Action for this Cell
 	for(int i = 0; i < owner->sym.size(); i++)
 	{
-		map->SetCell(owner->x.get(i), owner->y.get(i), owner->cell.get(i));
-		map->SetFeatureActivated(owner->x.get(i), owner->y.get(i), false);
+		map->RevertCell(owner->x.get(i), owner->y.get(i));
+		map->Activated(owner->x.get(i), owner->y.get(i), false);
 	}
 
 	// Make sure corpses are drawn before living entities
@@ -124,6 +124,7 @@ void Entity::updateConditions(Object *owner)
 				owner->entity->conditions->remove(con);
 				owner->colour = TCODColor::white;
 			}
+			//if( condition->type == Condition::CON_MP_REGEN ) 
 		}
 		else
 		{

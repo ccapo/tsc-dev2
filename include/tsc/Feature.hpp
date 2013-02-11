@@ -31,6 +31,7 @@ class Feature
 	TCODColor darkGround;
 
 	Feature();
+	virtual ~Feature() {}
 	virtual void Action(Object *owner, int x, int y) = 0;
 };
 

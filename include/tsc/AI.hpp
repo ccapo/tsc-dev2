@@ -8,15 +8,6 @@
 class AI
 {
 	public:
-	enum AIType
-	{
-		ORC,
-		GOBLIN,
-		WARG,
-		TROLL,
-		DEMON,
-		NAITYPES
-	};
 	AI(){}
 	virtual ~AI(){}
 	virtual bool Update(Object *owner) = 0;
@@ -25,8 +16,8 @@ class AI
 class PlayerAI: public AI
 {
 	public:
-	PlayerAI();
-	~PlayerAI();
+	PlayerAI() {}
+	~PlayerAI() {}
 	bool Update(Object *owner);
 
 	protected:
@@ -36,8 +27,17 @@ class PlayerAI: public AI
 class CreatureAI: public AI
 {
 	public:
-	CreatureAI();
-	~CreatureAI();
+	enum AIType
+	{
+		ORC,
+		GOBLIN,
+		WARG,
+		TROLL,
+		DEMON,
+		NAITYPES
+	};
+	CreatureAI() {}
+	~CreatureAI() {}
 	bool Update(Object *owner);
 
 	protected:
@@ -48,6 +48,23 @@ class CreatureAI: public AI
 class BossAI: public AI
 {
 	public:
+	enum PatternType
+	{
+		VERTICAL_PATTERN,
+		HORIZONTAL_PATTERN,
+		PLUS_PATTERN,
+		X_PATTERN,
+		ASTERISK_PATTERN,
+		LEFT_ACUTE_ANGLE_PATTERN,
+		RIGHT_ACUTE_ANGLE_PATTERN,
+		TRIANGLE_PATTERN,
+		INVERTED_TRIANGLE_PATTERN,
+		DUMBBELL_PATTERN,
+		ZIGZAG_DUMBBELL_PATTERN,
+		SQUARE_COVERLEAF_PATTERN,
+		SPIRAL_ZIGZAG_PATTERN,
+		NPATTERNTYPES
+	};
 	enum MovementType
 	{
 		DONT_MOVE,
@@ -68,29 +85,12 @@ class BossAI: public AI
 		SPIRAL_OUT,
 		NMOVEMENTTYPES
 	};
-	enum PatternType
-	{
-		VERTICAL_PATTERN,
-		HORIZONTAL_PATTERN,
-		PLUS_PATTERN,
-		X_PATTERN,
-		ASTERISK_PATTERN,
-		LEFT_ACUTE_ANGLE_PATTERN,
-		RIGHT_ACUTE_ANGLE_PATTERN,
-		TRIANGLE_PATTERN,
-		INVERTED_TRIANGLE_PATTERN,
-		DUMBBELL_PATTERN,
-		ZIGZAG_DUMBBELL_PATTERN,
-		SQUARE_COVERLEAF_PATTERN,
-		SPIRAL_ZIGZAG_PATTERN,
-		NPATTERNTYPES
-	};
 	TCODList<int> patternList;
 	map<int, PointType> patternData[PATTERNMAX];
 
-	BossAI();
+	BossAI() {}
 	BossAI(int type);
-	~BossAI();
+	~BossAI() {}
 	bool Update(Object *owner);
 
 	protected:
@@ -320,7 +320,7 @@ class BossAI: public AI
 			}
 			default:
 			{
-				// Simple Pattern
+				// Default Pattern
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_RIGHT);
 
@@ -538,8 +538,8 @@ class BossAI: public AI
 class NpcAI: public AI
 {
 	public:
-	NpcAI();
-	~NpcAI();
+	NpcAI() {}
+	~NpcAI() {}
 	bool Update(Object *owner);
 
 	protected:
