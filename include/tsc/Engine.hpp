@@ -30,7 +30,7 @@ class Engine
 		NCAVETYPES
 	} mapID;
 
-	enum FontSizes
+	enum Fonts
 	{
 		FONT_01,
 		FONT_02,
@@ -46,10 +46,10 @@ class Engine
 
 	enum CategoryTypes
 	{
-		CATEGORY_CONSUMABLE,
-		CATEGORY_WEARABLE,
-		CATEGORY_WIELDABLE,
-		CATEGORY_MISC,
+		CONSUMABLE,
+		WEARABLE,
+		WIELDABLE,
+		MISC,
 		NCATEGORIES
 	};
 

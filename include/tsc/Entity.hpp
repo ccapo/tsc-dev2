@@ -1,5 +1,5 @@
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef HPP
+#define HPP
 
 #include "Global.hpp"
 #include "Object.hpp"
@@ -10,6 +10,23 @@
 class Entity
 {
 	public:
+	enum EntityType
+	{
+		PLAYER,
+		NPC,
+		INANIMATE,
+		INSECT,
+		VERMIN,
+		REPTILE,
+		BEAST,
+		HUMANOID,
+		TROGLODYTE,
+		ETHEREAL,
+		UNKNOWN,
+		BOSS,
+		NENTITYTYPES
+	} type;
+
 	Stats base_stats;		// Base Entity Stats
 	Stats stats;			// Current Entity Stats
 	Health health;			// Current Entity Health
@@ -24,7 +41,7 @@ class Entity
 	AI *ai;					// Entity's AI
 	Conditions *conditions;	// Entity's Conditions
 
-	Entity(Stats stats, Health health, int corpseSym, const TCODColor &corpseColour, const char *corpseName): base_stats(stats), stats(stats), health(health), mapID(0), displacement(0.0f), corpseSym(corpseSym), corpseColour(corpseColour), corpseName(corpseName), ai(NULL)
+	Entity(EntityType type, Stats stats, Health health, int corpseSym, const TCODColor &corpseColour, const char *corpseName): type(type), base_stats(stats), stats(stats), health(health), mapID(0), displacement(0.0f), corpseSym(corpseSym), corpseColour(corpseColour), corpseName(corpseName), ai(NULL)
 	{
 		conditions = new Conditions();
 	}

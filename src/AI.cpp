@@ -17,9 +17,6 @@ bool PlayerAI::Update(Object *owner)
 	// Update and Apply Conditions
 	owner->entity->updateConditions(owner);
 
-	//printf("Physical: %d %d %d %d %d\n", owner->entity->stats.hpmax, owner->entity->stats.ap, owner->entity->stats.dp, owner->entity->stats.str, owner->entity->stats.spd);
-	//printf("Mental:   %d %d %d %d %d\n", owner->entity->stats.mpmax, owner->entity->stats.map, owner->entity->stats.mdp, owner->entity->stats.wil, owner->entity->stats.acu);
-
 	// Increment displacement
 	owner->entity->displacement += elapsed*static_cast<float>(owner->entity->stats.spd);
 
@@ -70,7 +67,7 @@ bool PlayerAI::Update(Object *owner)
 
 void PlayerAI::UpdateConfused(Object *owner, int &dx, int &dy)
 {
-	if( owner->entity->hasCondition(Condition::CON_CONFUSION) )
+	if( owner->entity->hasCondition(Condition::CONFUSION) )
 	{
 		dx = rng->getInt(-1, 1);
 		dy = rng->getInt(-1, 1);
@@ -100,25 +97,181 @@ bool CreatureAI::Update(Object *owner)
 	{
       	owner->entity->displacement = 0.0f;
 
-		if( !engine->player->entity->IsDead() )
+		switch( type )
 		{
-			float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc;
-			if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CON_CONFUSION) )
+			case SKITTISH:
 			{
-				ChaseOrAttack(owner, engine->player->x.get(0), engine->player->y.get(0));
+				// Locate closest entity
+				Object *target = ClosestEntity(owner);
+				if( target && !target->entity->IsDead() )
+				{
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc;
+					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					{
+						RunAway(owner, target);
+					}
+					else
+					{
+						RandomWalk(owner);
+					}
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
+				break;
 			}
-			else
+			case NORMAL:
+			{
+				if( !engine->player->entity->IsDead() )
+				{
+					float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc;
+					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					{
+						ChaseOrAttack(owner, engine->player);
+					}
+					else
+					{
+						RandomWalk(owner);
+					}
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
+				break;
+			}
+			case AGGRESSIVE:
+			{
+				// Locate closest entity
+				Object *target = ClosestEntity(owner);
+				if( target && !target->entity->IsDead() )
+				{
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc;
+					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					{
+						ChaseOrAttack(owner, target);
+					}
+					else
+					{
+						RandomWalk(owner);
+					}
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
+				break;
+			}
+			case PATROLLER:
 			{
 				RandomWalk(owner);
+				break;
 			}
-		}
-		else
-		{
-			RandomWalk(owner);
+			case CHARGER:
+			{
+				RandomWalk(owner);
+				break;
+			}
+			case SPAWNER:
+			{
+				RandomWalk(owner);
+				break;
+			}
+			case SEEKER:
+			{
+				RandomWalk(owner);
+				break;
+			}
+			default: break;
 		}
 	}
 
 	return true;
+}
+
+Object *CreatureAI::ClosestEntity(Object *owner) const
+{
+	int imin = -1;
+	float dmin = 9999.0f;
+	Map *map = &engine->map[engine->mapID];
+
+	// Search the object list first
+	for(int i = map->objects.size() - 1; i >= 0; i--)
+	{
+		Object *object = map->objects.get(i);
+		if( object != owner && object->entity && object->entity->type != Entity::INANIMATE && !object->entity->IsDead() )
+		{
+			float dx = owner->xc - object->xc, dy = owner->yc - object->yc, d2 = dx*dx + dy*dy;
+			if( d2 < dmin*dmin )
+			{
+				dmin = sqrt(d2);
+				imin = i;
+			}
+		}
+	}
+
+	// Search for the player
+	float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc, d2 = dx*dx + dy*dy;
+	if( d2 < dmin*dmin )
+	{
+		dmin = sqrt(d2);
+		imin = map->objects.size() + 1;
+	}
+
+	if( imin >= 0 )
+	{
+		Object *object;
+		if( imin < map->objects.size() )
+		{
+			object = map->objects.get(imin);
+		}
+		else
+		{
+			object = engine->player;
+		}
+		return object;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void CreatureAI::RunAway(Object *owner, Object *target)
+{
+	static const int dx[NBLOCK] = {-1,  0, +1, -1, 0, +1, -1,  0, +1};
+	static const int dy[NBLOCK] = {-1, -1, -1,  0, 0,  0, +1, +1, +1};
+	int dx0 = owner->x.get(0) - target->x.get(0), dy0 = owner->y.get(0) - target->y.get(0);
+	int imax = -1;
+	float dmax = -1.0f;
+
+	for(int i = 0; i < NBLOCK; i++)
+	{
+		int dxx = dx0 + dx[i], dyy = dy0 + dy[i], d = sqrt(dxx*dxx + dyy*dyy);
+		if( d > dmax )
+		{
+			dmax = d;
+			imax = i;
+		}
+	}
+
+	if( imax > 0 )
+	{
+		owner->xc = 0.0f; owner->yc = 0.0f;
+		int x0 = owner->x.get(0), y0 = owner->y.get(0);
+		for(int i = 0; i < owner->sym.size(); i++)
+		{
+			int dxx = owner->x.get(i) - x0;
+			int dyy = owner->y.get(i) - y0;
+			owner->x.set(x0 + dx[imax] + dxx,i);
+			owner->y.set(y0 + dy[imax] + dyy,i);
+			owner->xc += owner->x.get(i);
+			owner->yc += owner->y.get(i);
+		}
+		owner->xc /= static_cast<float>(owner->sym.size());
+		owner->yc /= static_cast<float>(owner->sym.size());
+	}
 }
 
 void CreatureAI::RandomWalk(Object *owner)
@@ -130,23 +283,17 @@ void CreatureAI::RandomWalk(Object *owner)
 	int i = rng->getInt(0, NBLOCK - 1);
 	owner->obstructs = false;
 	bool obstructed = map->IsObstructed(owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-	if( owner->sym.size() > 1 )
+	for(int j = 1; j < owner->sym.size(); j++)
 	{
-		for(int j = 1; j < owner->sym.size(); j++)
-		{
-			obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
-		}
+		obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
 	}
 	while( obstructed )
 	{
 		i = rng->getInt(0, NBLOCK - 1);
 		obstructed = map->IsObstructed(owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-		if( owner->sym.size() > 1 )
+		for(int j = 1; j < owner->sym.size(); j++)
 		{
-			for(int j = 1; j < owner->sym.size(); j++)
-			{
-				obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
-			}
+			obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx[i], owner->y.get(j) + dy[i]);
 		}
 	}
 	owner->obstructs = true;
@@ -159,18 +306,15 @@ void CreatureAI::RandomWalk(Object *owner)
 			map->Activated(owner->x.get(j), owner->y.get(j), false);
 		}
 		map->Action(owner, owner->x.get(0) + dx[i], owner->y.get(0) + dy[i]);
-		if( !owner->entity->IsDead() )
-		{
-			for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
-		}
+		if( !owner->entity->IsDead() ) for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
 	}
 }
 
-void CreatureAI::ChaseOrAttack(Object *owner, int targetx, int targety)
+void CreatureAI::ChaseOrAttack(Object *owner, Object *target)
 {
 	int ox = owner->x.get(0), oy = owner->y.get(0);
-	int dx = targetx - ox;
-	int dy = targety - oy;
+	int dx = target->x.get(0) - ox;
+	int dy = target->y.get(0) - oy;
 	int stepdx = (dx > 0 ? 1: -1);
 	int stepdy = (dy > 0 ? 1: -1);
 	float distance = sqrtf(dx*dx + dy*dy);
@@ -205,18 +349,15 @@ void CreatureAI::ChaseOrAttack(Object *owner, int targetx, int targety)
 			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
 		map->Action(owner, ox, oy);
-		if( !owner->entity->IsDead() )
-		{
-			for(int i = 0; i < owner->sym.size(); i++) map->SetCreature(owner->x.get(i), owner->y.get(i));
-		}
+		if( !owner->entity->IsDead() ) for(int i = 0; i < owner->sym.size(); i++) map->SetCreature(owner->x.get(i), owner->y.get(i));
 	}
 
-	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
+	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, target);
 }
 
 BossAI::BossAI(int type)
 {
-	PatternCollections(type);
+	PatternEnsemble(type);
 }
 
 bool BossAI::Update(Object *owner)
@@ -250,7 +391,6 @@ bool BossAI::Update(Object *owner)
 			float distance = sqrtf(dx*dx + dy*dy);
 			if( distance <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 		}
-
 	}
 
 	return true;
@@ -270,10 +410,7 @@ void BossAI::WalkPattern(Object *owner)
 		map->Activated(owner->x.get(j), owner->y.get(j), false);
 	}
 	map->Action(owner, x, y);
-	if( !owner->entity->IsDead() )
-	{
-		for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
-	}
+	if( !owner->entity->IsDead() ) for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
 }
 
 void BossAI::ListPattern(Object *owner, int &x, int &y)
@@ -313,7 +450,7 @@ void BossAI::ListPattern(Object *owner, int &x, int &y)
 			if( second )
 			{
 				second = false;
-				PatternCollections(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
+				PatternEnsemble(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
 			}
 			else
 			{
@@ -343,10 +480,7 @@ bool NpcAI::Update(Object *owner)
 	else
 	{
 		MoveToTarget(owner, xTarget, yTarget);
-		for(int i = 0; i < owner->sym.size(); i++)
-		{
-			if(owner->x.get(i) == xTarget && owner->y.get(i) == yTarget) arrived = true;
-		}
+		for(int i = 0; i < owner->sym.size(); i++) if( owner->x.get(i) == xTarget && owner->y.get(i) == yTarget ) arrived = true;
 	}
 
 	return true;
@@ -388,9 +522,6 @@ void NpcAI::MoveToTarget(Object *owner, int targetx, int targety)
 			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
 		map->Action(owner, ox, oy);
-		if( !owner->entity->IsDead() )
-		{
-			for(int i = 0; i < owner->sym.size(); i++) map->SetNpc(owner->x.get(i), owner->y.get(i));
-		}
+		for(int i = 0; i < owner->sym.size(); i++) map->SetNpc(owner->x.get(i), owner->y.get(i));
 	}
 }

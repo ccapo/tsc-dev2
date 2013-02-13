@@ -10,47 +10,47 @@ class Condition
 	public:
 	enum ConditionType
 	{
-		CON_NONE,						// No Condition
+		NONE,						// No Condition
 
 		// Positive Stats Modification
-		CON_HP_PLUS,					// Increased HP
-		CON_MP_PLUS,					// Increased MP
-		CON_HP_REGEN,					// HP Regenerate
-		CON_MP_REGEN,					// MP Regenerate
-		CON_STR_PLUS,					// Increased Strength
-		CON_SPD_PLUS,					// Increased Speed
-		CON_WIL_PLUS,					// Increased Willpower
-		CON_ACU_PLUS,					// Increased Acuity
+		HP_PLUS,					// Increased HP
+		MP_PLUS,					// Increased MP
+		HP_REGEN,					// HP Regenerate
+		MP_REGEN,					// MP Regenerate
+		STR_PLUS,					// Increased Strength
+		SPD_PLUS,					// Increased Speed
+		WIL_PLUS,					// Increased Willpower
+		ACU_PLUS,					// Increased Acuity
 
 		// Abilities
-		CON_FARSIGHTED,					// Increased Visual Perception
-		CON_MASK_SCENT,					// Mask Scent from Creatures
-		CON_LEVITATION,					// Float Above the Ground
-		CON_CREATURE_SENSE,				// Sense Presence of Creatures
-		CON_POISON_ANTIDOTE,			// Poison Antidote
-		CON_IMMUNE_FIRE,				// Immune to Fire Magic
-		CON_IMMUNE_WATER,				// Immune to Water Magic
-		CON_IMMUNE_EARTH,				// Immune to Earth Magic
-		CON_IMMUNE_WIND,				// Immune to Wind Magic
+		FARSIGHTED,					// Increased Visual Perception
+		MASK_SCENT,					// Mask Scent from Creatures
+		LEVITATION,					// Float Above the Ground
+		CREATURE_SENSE,				// Sense Presence of Creatures
+		POISON_ANTIDOTE,			// Poison Antidote
+		IMMUNE_FIRE,				// Immune to Fire Magic
+		IMMUNE_WATER,				// Immune to Water Magic
+		IMMUNE_EARTH,				// Immune to Earth Magic
+		IMMUNE_WIND,				// Immune to Wind Magic
 
 		// Negative Stats Modification
-		CON_HP_MINUS,					// Decreased HP
-		CON_MP_MINUS,					// Decreased MP
-		CON_STR_MINUS,					// Decreased Strength
-		CON_SPD_MINUS,					// Decreased Speed
-		CON_WIL_MINUS,					// Decreased Willpower
-		CON_ACU_MINUS,					// Decreased Acuity
+		HP_MINUS,					// Decreased HP
+		MP_MINUS,					// Decreased MP
+		STR_MINUS,					// Decreased Strength
+		SPD_MINUS,					// Decreased Speed
+		WIL_MINUS,					// Decreased Willpower
+		ACU_MINUS,					// Decreased Acuity
 
 		// Afflictions
-		CON_NEARSIGHTED,				// Decreased Visual Perception
-		CON_CONFUSION,					// Random Movement
-		CON_PARALYSIS,					// Inability to Move or Attack
-		CON_POISON,						// Decreases HP
-		CON_BURDENED,					// Overloaded, Decreases all Stats
-		CON_VULNERABLE_FIRE,			// Vulnerable to Fire Magic
-		CON_VULNERABLE_WATER,			// Vulnerable to Water Magic
-		CON_VULNERABLE_EARTH,			// Vulnerable to Earth Magic
-		CON_VULNERABLE_WIND,			// Vulnerable to Wind Magic
+		NEARSIGHTED,				// Decreased Visual Perception
+		CONFUSION,					// Random Movement
+		PARALYSIS,					// Inability to Move or Attack
+		POISON,						// Decreases HP
+		BURDENED,					// Overloaded, Decreases all Stats
+		VULNERABLE_FIRE,			// Vulnerable to Fire Magic
+		VULNERABLE_WATER,			// Vulnerable to Water Magic
+		VULNERABLE_EARTH,			// Vulnerable to Earth Magic
+		VULNERABLE_WIND,			// Vulnerable to Wind Magic
 		NCONS
 	} type;								// Type of Condition
 

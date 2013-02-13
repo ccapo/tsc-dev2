@@ -7,7 +7,7 @@ void Entity::Attack(Object *owner, Object *target)
 
 	if( target->entity && !target->entity->IsDead() )
 	{
-		int damage = target->entity->TakeDamage(stats.ap + stats.str/2 + stats.spd/4);
+		int damage = target->entity->TakeDamage(stats.ap + stats.str/5 + stats.spd/10);
 		if( damage > 0 )
 		{
 			engine->gui->MessageLog(colour, "%s Attacks %s", owner->name, target->name);
@@ -26,7 +26,7 @@ void Entity::Attack(Object *owner, Object *target)
 
 int Entity::TakeDamage(int amount)
 {
-	amount -= stats.dp + stats.str/2 + stats.spd/4;
+	amount -= stats.dp + stats.str/5 + stats.spd/10;
 	if( amount > 0 )
 	{
 		health.hp -= amount;
@@ -113,36 +113,37 @@ void Entity::updateConditions(Object *owner)
 		{
 			condition->first = false;
 			condition->counter = 0;
-			owner->entity->stats += condition->stats;
-			owner->entity->health += condition->health;
-			owner->entity->health.hp = Clamp<int>(owner->entity->health.hp, 0, owner->entity->stats.hpmax);
-			owner->entity->health.mp = Clamp<int>(owner->entity->health.mp, 0, owner->entity->stats.mpmax);
 
 			switch( condition->type )
 			{
-				case Condition::CON_MP_REGEN:
+				case Condition::MP_REGEN:
 				{
 					condition->health.mp = owner->entity->stats.acu;
-					condition->interval = 10*FPSMAX - 5*owner->entity->stats.wil;
+					condition->interval = 2*(WILMAX - owner->entity->stats.wil);
 					break;
 				}
-				case Condition::CON_POISON_ANTIDOTE:
+				case Condition::POISON_ANTIDOTE:
 				{
-					if( hasCondition(Condition::CON_POISON) )
+					if( hasCondition(Condition::POISON) )
 					{
-						Condition *con = getCondition(Condition::CON_POISON);
+						Condition *con = getCondition(Condition::POISON);
 						owner->entity->conditions->remove(con);
 						owner->colour = TCODColor::white;
 					}
 					break;
 				}
-				case Condition::CON_POISON:
+				case Condition::POISON:
 				{
 					owner->colour = TCODColor::green;
 					break;
 				}
 				default: break;
 			}
+
+			owner->entity->stats += condition->stats;
+			owner->entity->health += condition->health;
+			owner->entity->health.hp = Clamp<int>(owner->entity->health.hp, 0, owner->entity->stats.hpmax);
+			owner->entity->health.mp = Clamp<int>(owner->entity->health.mp, 0, owner->entity->stats.mpmax);
 		}
 		else
 		{
@@ -156,7 +157,17 @@ void Entity::updateConditions(Object *owner)
 		if( finished )
 		{
 			if( condition->msg_stop && owner == engine->player ) engine->gui->MessageLog(TCODColor::green, "%s", condition->msg_stop);
-			if( condition->type == Condition::CON_POISON ) owner->colour = TCODColor::white;
+
+			switch( condition->type )
+			{
+				case Condition::POISON:
+				{
+					owner->colour = TCODColor::white;
+					break;
+				}
+				default: break;
+			}
+
 			owner->entity->conditions->remove(condition);
 		}
 	}
@@ -212,13 +223,13 @@ void Entity::addConditions(Object *owner)
 					//  Health(hp, mp, xpnext)
 		Health health = Health(0, 0, 0);
 		Condition *condition;
-		if( hasCondition(Condition::CON_BURDENED) )
+		if( hasCondition(Condition::BURDENED) )
 		{
-			condition = new Condition(Condition::CON_BURDENED, 0, -1, stats, health, "Burdened", NULL, NULL);
+			condition = new Condition(Condition::BURDENED, 0, -1, stats, health, "Burdened", NULL, NULL);
 		}
 		else
 		{
-			condition = new Condition(Condition::CON_BURDENED, 1, -1, stats, health, "Burdened", "You Feel Your Belongings Weighing You Down", NULL);
+			condition = new Condition(Condition::BURDENED, 1, -1, stats, health, "Burdened", "You Feel Your Belongings Weighing You Down", NULL);
 		}
 		if( owner == engine->player && condition->msg_start ) engine->gui->MessageLog(TCODColor::red, "%s", condition->msg_start);
 		owner->entity->conditions->addToBack(condition);

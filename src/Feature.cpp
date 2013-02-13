@@ -164,7 +164,7 @@ Trap::Trap(int type, int mapID, int xTo, int yTo): mapID(mapID), xTo(xTo), yTo(y
 			Stats stats = Stats(0, 0, 0, 0, -1000, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_PARALYSIS, FPSMAX/2, 0, stats, health, NULL, "An Invisible Barrier Blocks Your Path", NULL);
+			Condition *condition = new Condition(Condition::PARALYSIS, FPSMAX/2, 0, stats, health, NULL, "An Invisible Barrier Blocks Your Path", NULL);
 			conditions->addToFront(condition);
 			break;
 		}
@@ -175,14 +175,14 @@ Trap::Trap(int type, int mapID, int xTo, int yTo): mapID(mapID), xTo(xTo), yTo(y
 			Stats *stats = new Stats(0, 0, 0, 0, -1000, 0, 0, 0, 0, 0);
 							//   Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_PARALYSIS, FPSMAX/2, 0, *stats, *health, NULL, "You Plummet Down A Dark Tunnel!", NULL);
+			Condition *condition = new Condition(Condition::PARALYSIS, FPSMAX/2, 0, *stats, *health, NULL, "You Plummet Down A Dark Tunnel!", NULL);
 			conditions->addToBack(condition);
 
 					//  Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
 			stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 					//   Health(hp, mp, xpnext)
 			health = new Health(-2, 0, 0);
-			condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, NULL, NULL);
+			condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, NULL, NULL);
 			conditions->addToBack(condition);
 			break;
 		}

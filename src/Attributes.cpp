@@ -31,7 +31,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(1000, 1000, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "You Feel All Warm And Fuzzy Inside!", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "You Feel All Warm And Fuzzy Inside!", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -41,7 +41,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(10, 0, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Little Better", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Little Better", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -51,7 +51,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(50, 0, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Lot Better!", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Lot Better!", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -61,7 +61,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 5, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Little Sharper", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Little Sharper", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -71,7 +71,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 25, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Lot Sharper!", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Lot Sharper!", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -81,7 +81,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_POISON_ANTIDOTE, 0, -1, *stats, *health, NULL, "You Start To Feel Better", NULL);
+			Condition *condition = new Condition(Condition::POISON_ANTIDOTE, 0, -1, *stats, *health, NULL, "You Start To Feel Better", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -91,7 +91,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(5, 0, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Little Better", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Physically, You Feel A Little Better", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -101,7 +101,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 2, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Little Sharper", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "Mentally, You Feel A Little Sharper", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -111,7 +111,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(-1, 0, 0);
-			Condition *condition = new Condition(Condition::CON_POISON, 10*FPSMAX, FPSMAX, *stats, *health, "Poisoned", "You've Been Poisoned!", "You Start To Feel Better");
+			Condition *condition = new Condition(Condition::POISON, 10*FPSMAX, FPSMAX, *stats, *health, "Poisoned", "You've Been Poisoned!", "You Start To Feel Better");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -121,7 +121,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, -2, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_STR_MINUS, 10*FPSMAX, 0, *stats, *health, "Weakened", "You Start To Feel Weaker", "You Start To Feel Your Strength Returning");
+			Condition *condition = new Condition(Condition::STR_MINUS, 10*FPSMAX, 0, *stats, *health, "Weakened", "You Start To Feel Weaker", "You Start To Feel Your Strength Returning");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -131,7 +131,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, -2, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_SPD_MINUS, 10*FPSMAX, 0, *stats, *health, "Sluggish", "You Begin To Feel A Bit Sluggish", "You Are Able To Move More Quickly");
+			Condition *condition = new Condition(Condition::SPD_MINUS, 10*FPSMAX, 0, *stats, *health, "Sluggish", "You Begin To Feel A Bit Sluggish", "You Are Able To Move More Quickly");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -141,7 +141,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, -2, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_WIL_MINUS, 10*FPSMAX, 0, *stats, *health, "Feeble", "You Begin To Feel More Feeble", "You Don't Feel So Feeble Anymore");
+			Condition *condition = new Condition(Condition::WIL_MINUS, 10*FPSMAX, 0, *stats, *health, "Feeble", "You Begin To Feel More Feeble", "You Don't Feel So Feeble Anymore");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -151,7 +151,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, -2);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_ACU_MINUS, 10*FPSMAX, 0, *stats, *health, "Inept", "You Begin To Feel Somewhat Inept", "You Feel More Focused");
+			Condition *condition = new Condition(Condition::ACU_MINUS, 10*FPSMAX, 0, *stats, *health, "Inept", "You Begin To Feel Somewhat Inept", "You Feel More Focused");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -161,7 +161,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_CONFUSION, 10*FPSMAX, 0, *stats, *health, "Confused", "You Begin To Feel Very Confused", "You Feel A Lot Less Confused");
+			Condition *condition = new Condition(Condition::CONFUSION, 10*FPSMAX, 0, *stats, *health, "Confused", "You Begin To Feel Very Confused", "You Feel A Lot Less Confused");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -171,7 +171,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, -1000, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_PARALYSIS, 10*FPSMAX, 0, *stats, *health, "Paralyzed", "You Cannot Move!", "You Can Move Again!");
+			Condition *condition = new Condition(Condition::PARALYSIS, 10*FPSMAX, 0, *stats, *health, "Paralyzed", "You Cannot Move!", "You Can Move Again!");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -181,7 +181,7 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(-1, 0, 0);
-			Condition *condition = new Condition(Condition::CON_POISON, 15*FPSMAX, FPSMAX, *stats, *health, "Poisoned", "I Don't Think That Was Such A Good Idea", "You Begin To Feel A Lot Less Queasy");
+			Condition *condition = new Condition(Condition::POISON, 15*FPSMAX, FPSMAX, *stats, *health, "Poisoned", "I Don't Think That Was Such A Good Idea", "You Begin To Feel A Lot Less Queasy");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -191,10 +191,11 @@ Consumable::Consumable(ConsumableType type): type(type)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_NONE, 0, -1, *stats, *health, NULL, "*CRUNCH* *CRUNCH* *CRUNCH* Hmmm ... Not Bad", NULL);
+			Condition *condition = new Condition(Condition::NONE, 0, -1, *stats, *health, NULL, "*CRUNCH* *CRUNCH* *CRUNCH* Hmmm ... Not Bad", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
+
 		default: break;
 	}
 }
@@ -211,7 +212,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(10, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(10, 0, 0);
-			Condition *condition = new Condition(Condition::CON_HP_PLUS, -1, 0, *stats, *health, "HPMAX+", "Physically, You Feel A Lot Better!", NULL);
+			Condition *condition = new Condition(Condition::HP_PLUS, -1, 0, *stats, *health, "HPMAX+", "Physically, You Feel A Lot Better!", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -221,7 +222,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 10, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 10, 0);
-			Condition *condition = new Condition(Condition::CON_MP_PLUS, -1, 0, *stats, *health, NULL, "Mentally, You Feel A Lot Better!", NULL);
+			Condition *condition = new Condition(Condition::MP_PLUS, -1, 0, *stats, *health, NULL, "Mentally, You Feel A Lot Better!", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -231,7 +232,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 5, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_STR_PLUS, -1, 0, *stats, *health, NULL, "You Feel A Lot Stronger", NULL);
+			Condition *condition = new Condition(Condition::STR_PLUS, -1, 0, *stats, *health, NULL, "You Feel A Lot Stronger", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -241,7 +242,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 0, 5, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_SPD_PLUS, -1, 0, *stats, *health, NULL, "You Start To Feel Faster", NULL);
+			Condition *condition = new Condition(Condition::SPD_PLUS, -1, 0, *stats, *health, NULL, "You Start To Feel Faster", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -251,7 +252,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 5, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_WIL_PLUS, -1, 0, *stats, *health, NULL, "You Feel A Lot More Driven", NULL);
+			Condition *condition = new Condition(Condition::WIL_PLUS, -1, 0, *stats, *health, NULL, "You Feel A Lot More Driven", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -261,7 +262,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 5);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(0, 0, 0);
-			Condition *condition = new Condition(Condition::CON_ACU_PLUS, -1, 0, *stats, *health, NULL, "Mentally, You Feel A Lot More Focused", NULL);
+			Condition *condition = new Condition(Condition::ACU_PLUS, -1, 0, *stats, *health, NULL, "Mentally, You Feel A Lot More Focused", NULL);
 			conditions->addToBack(condition);
 			break;
 		}
@@ -271,7 +272,7 @@ Wearable::Wearable(WearableType type): type(type), worn(false)
 			Stats *stats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(-1, 0, 0);
-			Condition *condition = new Condition(Condition::CON_POISON, -1, 5*FPSMAX, *stats, *health, "Poisoned", "The Ring Is Cursed!", "You Manage To Remove The Cursed Ring");
+			Condition *condition = new Condition(Condition::POISON, -1, 5*FPSMAX, *stats, *health, "Poisoned", "The Ring Is Cursed!", "You Manage To Remove The Cursed Ring");
 			conditions->addToBack(condition);
 			break;
 		}
@@ -291,7 +292,7 @@ Wieldable::Wieldable(WieldableType type): type(type), wielded(false)
 			Stats *stats = new Stats(0, 0, 0, -2, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health *health = new Health(-1, 0, 0);
-			Condition *condition = new Condition(Condition::CON_POISON, -1, 5*FPSMAX, *stats, *health, "Poisoned", "The Sword Is Cursed!", "You Manage To Release The Cursed Sword");
+			Condition *condition = new Condition(Condition::POISON, -1, 5*FPSMAX, *stats, *health, "Poisoned", "The Sword Is Cursed!", "You Manage To Release The Cursed Sword");
 			conditions->addToBack(condition);
 			break;
 		}

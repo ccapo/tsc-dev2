@@ -29,20 +29,25 @@ class CreatureAI: public AI
 	public:
 	enum AIType
 	{
-		ORC,
-		GOBLIN,
-		WARG,
-		TROLL,
-		DEMON,
+		SKITTISH,
+		NORMAL,
+		AGGRESSIVE,
+		PATROLLER,
+		CHARGER,
+		SPAWNER,
+		SEEKER,
 		NAITYPES
-	};
-	CreatureAI() {}
+	} type;
+
+	CreatureAI(AIType type): type(type) {}
 	~CreatureAI() {}
 	bool Update(Object *owner);
 
 	protected:
+	Object *ClosestEntity(Object *owner) const;
 	void RandomWalk(Object *owner);
-	void ChaseOrAttack(Object *owner, int targetx, int targety);
+	void ChaseOrAttack(Object *owner, Object *target);
+	void RunAway(Object *owner, Object *target);
 };
 
 class BossAI: public AI
@@ -97,8 +102,8 @@ class BossAI: public AI
 	void WalkPattern(Object *owner);
 	void ListPattern(Object *owner, int &x, int &y);
 
-	// Pattern Collections
-	void PatternCollections(int type)
+	// Pattern Ensemble
+	void PatternEnsemble(int type)
 	{
 		if( patternList.size() > 0 )
 		{
@@ -330,11 +335,11 @@ class BossAI: public AI
 			}
 		}
 
-		for(int i = 0; i < patternList.size(); i++) MovementPatterns(i, patternList.get(i));
+		for(int i = 0; i < patternList.size(); i++) MovementPattern(i, patternList.get(i));
 	}
 
-	// Movement Patterns
-	void MovementPatterns(int index, int type)
+	// Movement Pattern
+	void MovementPattern(int index, int type)
 	{
 		int i = 0;
 		switch( type )

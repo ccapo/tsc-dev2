@@ -315,13 +315,13 @@ void Engine::Startup()
 	TCODList<int> xlist, ylist, symlist;
 	xlist.push(x); ylist.push(y); symlist.push(CHAR_PLAYER_RIGHT);
 	player = new Object(xlist, ylist, symlist, TCODColor::white, "The Player", 100.0f, true);
-	Stats player_stats = Stats(25, 8, 4, 10, 10, 15, 4, 2, 2, 1);
+	Stats player_stats = Stats(25, 8, 4, 10, 25, 15, 4, 2, 10, 1);
 	Health player_health = Health(player_stats.hpmax, player_stats.mpmax, 100);
-	player->entity = new Entity(player_stats, player_health, CHAR_SKULL, TCODColor::darkRed, "Your Corpse");
+	player->entity = new Entity(Entity::PLAYER, player_stats, player_health, CHAR_SKULL, TCODColor::darkRed, "Your Corpse");
 	player->entity->ai = new PlayerAI();
 	Stats stats = Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	Health health = Health(0, player_stats.acu, 0);
-	player->entity->conditions->addToFront(new Condition(Condition::CON_MP_REGEN, -1, 10*FPSMAX - 5*player_stats.wil, stats, health, NULL, NULL, NULL));
+	player->entity->conditions->addToFront(new Condition(Condition::MP_REGEN, -1, 2*(WILMAX - player_stats.wil), stats, health, NULL, NULL, NULL));
 	player->container = new Container(0);
 
 	Object *item;
@@ -363,6 +363,9 @@ void Engine::Startup()
 
 	item = new Object(x, y, CHAR_KEY, TCODColor::white, "A Key", 0.1f, false);
 	player->container->add(player, item);
+
+	// Add the player to each map, strictly should only be in current map
+	//for(int i = 0; i < NMAPS; i++) map[i].objects.push(player);
 
 	gui = new GUI();
 	gui->MessageLog(TCODColor::red, "Welcome Adventurer!\nPrepare to perish in the Serpentine Caves.");
@@ -602,29 +605,29 @@ void Engine::Update()
 		char name[CHARMAX];
 		TCODList<int> list;
 	} invCategory[NCATEGORIES];
-	strcpy(invCategory[CATEGORY_CONSUMABLE].name, "Consumable");
-	strcpy(invCategory[CATEGORY_WEARABLE].name, "Wearable");
-	strcpy(invCategory[CATEGORY_WIELDABLE].name, "Wieldable");
-	strcpy(invCategory[CATEGORY_MISC].name, "Misc");
+	strcpy(invCategory[CONSUMABLE].name, "Consumable");
+	strcpy(invCategory[WEARABLE].name, "Wearable");
+	strcpy(invCategory[WIELDABLE].name, "Wieldable");
+	strcpy(invCategory[MISC].name, "Misc");
 
 	for(int i = 0; i < player->container->inventory.size(); i++)
 	{
 		Object *object = player->container->inventory.get(i);
 		if( object->consumable )
 		{
-			invCategory[CATEGORY_CONSUMABLE].list.push(i);
+			invCategory[CONSUMABLE].list.push(i);
 		}
 		else if( object->wearable )
 		{
-			invCategory[CATEGORY_WEARABLE].list.push(i);
+			invCategory[WEARABLE].list.push(i);
 		}
 		else if( object->wieldable )
 		{
-			invCategory[CATEGORY_WIELDABLE].list.push(i);
+			invCategory[WIELDABLE].list.push(i);
 		}
 		else
 		{
-			invCategory[CATEGORY_MISC].list.push(i);
+			invCategory[MISC].list.push(i);
 		}
 	}
 
@@ -707,9 +710,9 @@ void Engine::Update()
 				}
 				case TCODK_ENTER:
 				{
-					for(int i = 0; i < invCategory[CATEGORY_CONSUMABLE].list.size(); i++)
+					for(int i = 0; i < invCategory[CONSUMABLE].list.size(); i++)
 					{
-						int k = invCategory[CATEGORY_CONSUMABLE].list.get(i);
+						int k = invCategory[CONSUMABLE].list.get(i);
 						Object *object = player->container->inventory.get(k);
 						if( object->consumable && object->consumable->type == ctype )
 						{

@@ -366,41 +366,41 @@ void Map::GetCreatureChances(int caveType)
 		case Engine::CAVETYPE_01:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
-			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
+			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			break;
 		}
 		case Engine::CAVETYPE_02:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
-			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
+			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			break;
 		}
 		case Engine::CAVETYPE_03:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
-			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
+			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			break;
 		}
 		case Engine::CAVETYPE_04:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(CreatureAI::ORC,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::GOBLIN,	30));
-			object_chances.insert(pair<int, int>(CreatureAI::WARG,		30));
-			object_chances.insert(pair<int, int>(CreatureAI::TROLL,		5));
-			object_chances.insert(pair<int, int>(CreatureAI::DEMON,		5));
+			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
+			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			break;
 		}
 		default: break;
@@ -418,15 +418,15 @@ void Map::AddWall(int x, int y, bool imprevious)
 		Stats stats = Stats(1, 0, 999, 0, 0, 0, 0, 0, 0, 0);
 					//  Health(hp, mp, xpnext)
 		Health health = Health(1, 0, 0);
-		wall->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::white, "A Pile Of Rubble");
+		wall->entity = new Entity(Entity::INANIMATE, stats, health, CHAR_RUBBLE_PILE, TCODColor::white, "A Pile Of Rubble");
 	}
 	else
 	{
 					//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
 		Stats stats = Stats(100, 0, 5, 0, 0, 0, 0, 0, 0, 0);
 					//  Health(hp, mp, xpnext)
-		Health health = Health(100, 0, 0);
-		wall->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::white, "A Pile Of Rubble");
+		Health health = Health(100, 0, -1);
+		wall->entity = new Entity(Entity::INANIMATE, stats, health, CHAR_RUBBLE_PILE, TCODColor::white, "A Pile Of Rubble");
 	}
 	objects.push(wall);
 	cells[x + y*width].feature = new Wall();
@@ -495,7 +495,7 @@ void Map::AddItem(int x, int y)
 			Stats stats = Stats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(0, 0, 0);
-			item->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
+			item->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
 			int size = item->sym.size();
 			item->sym.clear();
 			for(int i = 0; i < size; i++) item->sym.push(item->entity->corpseSym);
@@ -548,55 +548,55 @@ void Map::AddCreature(int x, int y)
 	switch( creatureType )
 	{
 		// Orc
-		case CreatureAI::ORC:
+		case CreatureAI::SKITTISH:
 		{
-			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORC_PEON);
-			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "An Orc", 0.5f, true);
+			xlist.push(x); ylist.push(y); symlist.push(CHAR_GOBLIN_PEON);
+			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Goblin", 0.5f, true);
 						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
 			Stats stats = Stats(10, 4, 2, 5, 5, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(10, 0, -5);
-			creature->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "An Orc Corpse");
+			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "A Goblin Corpse");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI();
+			creature->entity->ai = new CreatureAI(CreatureAI::SKITTISH);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
 		}
 		// Goblin
-		case CreatureAI::GOBLIN:
+		case CreatureAI::NORMAL:
 		{
-			xlist.push(x); ylist.push(y); symlist.push(CHAR_GOBLIN_PEON);
-			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Goblin", 0.5f, true);
+			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORC_PEON);
+			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "An Orc", 0.5f, true);
 						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
 			Stats stats = Stats(15, 5, 3, 5, 5, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(15, 0, -7);
-			creature->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "A Goblin Corpse");
+			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "An Orc Corpse");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI();
+			creature->entity->ai = new CreatureAI(CreatureAI::NORMAL);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
 		}
 		// Warg
-		case CreatureAI::WARG:
+		case CreatureAI::AGGRESSIVE:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_VERMIN_BROWN);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Warg", 0.75f, true);
 						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
-			Stats stats = Stats(20, 6, 3, 10, 8, 0, 0, 0, 0, 0);
+			Stats stats = Stats(20, 8, 3, 10, 8, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(20, 0, -10);
-			creature->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "A Warg Carcass");
+			creature->entity = new Entity(Entity::BEAST, stats, health, CHAR_SKULL, TCODColor::white, "A Warg Carcass");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI();
+			creature->entity->ai = new CreatureAI(CreatureAI::AGGRESSIVE);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
 		}
 		// Troll
-		case CreatureAI::TROLL:
+		case CreatureAI::PATROLLER:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORGE_PEON_GREEN);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Troll", 1.5f, true);
@@ -604,15 +604,15 @@ void Map::AddCreature(int x, int y)
 			Stats stats = Stats(30, 8, 4, 15, 4, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(30, 0, -15);
-			creature->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "A Troll Corpse");
+			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "A Troll Corpse");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI();
+			creature->entity->ai = new CreatureAI(CreatureAI::PATROLLER);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
 		}
 		// Demon
-		case CreatureAI::DEMON:
+		case CreatureAI::SPAWNER:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_DEMON_PEON);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Demon", 0.5f, true);
@@ -620,9 +620,9 @@ void Map::AddCreature(int x, int y)
 			Stats stats = Stats(30, 6, 5, 10, 6, 0, 0, 0, 0, 0);
 						//  Health(hp, mp, xpnext)
 			Health health = Health(30, 0, -15);
-			creature->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "A Demon Corpse");
+			creature->entity = new Entity(Entity::HUMANOID, stats, health, CHAR_SKULL, TCODColor::white, "A Demon Corpse");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI();
+			creature->entity->ai = new CreatureAI(CreatureAI::SPAWNER);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
@@ -643,7 +643,7 @@ void Map::AddBoss(int x, int y)
 	Object *boss = new Object(xlist, ylist, symlist, TCODColor::white, "Red Demon Lord", 1000.0f, true);
 	Stats stats = Stats(100, 10, 10, 10, 25, 100, 5, 5, 5, 5);
 	Health health = Health(100, 100, -50);
-	boss->entity = new Entity(stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
+	boss->entity = new Entity(Entity::BOSS, stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
 	boss->container = new Container(10);
 	boss->entity->ai = new BossAI(rng->getInt(BossAI::VERTICAL_PATTERN, BossAI::NPATTERNTYPES - 1));
 	objects.push(boss);
@@ -659,7 +659,7 @@ void Map::AddNpc(int x, int y)
 	Stats stats = Stats(1, 0, 0, 0, 5, 0, 0, 0, 0, 0);
 				//  Health(hp, mp, xpnext)
 	Health health = Health(1, 0, 0);
-	npc->entity = new Entity(stats, health, CHAR_SKULL, TCODColor::white, "A Corpse");
+	npc->entity = new Entity(Entity::NPC, stats, health, CHAR_SKULL, TCODColor::white, "A Corpse");
 	npc->entity->ai = new NpcAI();
 	objects.push(npc);
 	for(int i = 0; i < npc->sym.size(); i++) SetNpc(npc->x.get(i), npc->y.get(i));
