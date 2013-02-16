@@ -30,7 +30,7 @@ class CreatureAI: public AI
 	enum AIType
 	{
 		SKITTISH,
-		NORMAL,
+		REGULAR,
 		AGGRESSIVE,
 		PATROLLER,
 		CHARGER,

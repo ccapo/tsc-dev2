@@ -105,8 +105,8 @@ bool CreatureAI::Update(Object *owner)
 				Object *target = ClosestEntity(owner);
 				if( target && !target->entity->IsDead() )
 				{
-					float dx = owner->xc - target->xc, dy = owner->yc - target->yc;
-					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
 					{
 						RunAway(owner, target);
 					}
@@ -121,14 +121,16 @@ bool CreatureAI::Update(Object *owner)
 				}
 				break;
 			}
-			case NORMAL:
+			case REGULAR:
 			{
-				if( !engine->player->entity->IsDead() )
+				// Target Player Only
+				Object *target = engine->player;
+				if( target && !target->entity->IsDead() )
 				{
-					float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc;
-					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
 					{
-						ChaseOrAttack(owner, engine->player);
+						ChaseOrAttack(owner, target);
 					}
 					else
 					{
@@ -147,8 +149,8 @@ bool CreatureAI::Update(Object *owner)
 				Object *target = ClosestEntity(owner);
 				if( target && !target->entity->IsDead() )
 				{
-					float dx = owner->xc - target->xc, dy = owner->yc - target->yc;
-					if( dx*dx + dy*dy < 100.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
 					{
 						ChaseOrAttack(owner, target);
 					}
@@ -180,7 +182,17 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case SEEKER:
 			{
-				RandomWalk(owner);
+				// Target Player Only
+				Object *target = engine->player;
+				if( !owner->entity->hasCondition(Condition::CONFUSION) )
+				{
+					ChaseOrAttack(owner, target);
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
+
 				break;
 			}
 			default: break;
@@ -202,20 +214,20 @@ Object *CreatureAI::ClosestEntity(Object *owner) const
 		Object *object = map->objects.get(i);
 		if( object != owner && object->entity && object->entity->type != Entity::INANIMATE && !object->entity->IsDead() )
 		{
-			float dx = owner->xc - object->xc, dy = owner->yc - object->yc, d2 = dx*dx + dy*dy;
-			if( d2 < dmin*dmin )
+			float dx = owner->xc - object->xc, dy = owner->yc - object->yc, d = sqrtf(dx*dx + dy*dy);
+			if( d < dmin )
 			{
-				dmin = sqrt(d2);
+				dmin = d;
 				imin = i;
 			}
 		}
 	}
 
 	// Search for the player
-	float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc, d2 = dx*dx + dy*dy;
-	if( d2 < dmin*dmin )
+	float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc, d = sqrtf(dx*dx + dy*dy);
+	if( d < dmin )
 	{
-		dmin = sqrt(d2);
+		dmin = d;
 		imin = map->objects.size() + 1;
 	}
 
@@ -240,38 +252,47 @@ Object *CreatureAI::ClosestEntity(Object *owner) const
 
 void CreatureAI::RunAway(Object *owner, Object *target)
 {
-	static const int dx[NBLOCK] = {-1,  0, +1, -1, 0, +1, -1,  0, +1};
-	static const int dy[NBLOCK] = {-1, -1, -1,  0, 0,  0, +1, +1, +1};
-	int dx0 = owner->x.get(0) - target->x.get(0), dy0 = owner->y.get(0) - target->y.get(0);
-	int imax = -1;
-	float dmax = -1.0f;
+	int ox = owner->x.get(0), oy = owner->y.get(0);
+	int dx = target->x.get(0) - ox;
+	int dy = target->y.get(0) - oy;
+	int stepdx = (dx > 0 ? 1: -1);
+	int stepdy = (dy > 0 ? 1: -1);
+	float distance = sqrtf(dx*dx + dy*dy);
+	Map *map = &engine->map[engine->mapID];
 
-	for(int i = 0; i < NBLOCK; i++)
+	if( distance > sqrt(2.0f) && distance <= 10.0f )
 	{
-		int dxx = dx0 + dx[i], dyy = dy0 + dy[i], d = sqrt(dxx*dxx + dyy*dyy);
-		if( d > dmax )
+		dx = (int)(round(dx/distance));
+		dy = (int)(round(dy/distance));
+		if( !map->IsObstructed(ox - dx, oy - dy) )
 		{
-			dmax = d;
-			imax = i;
+			ox -= dx;
+			oy -= dy;
+		}
+		else if( !map->IsObstructed(ox - stepdx, oy) )
+		{
+			ox -= stepdx;
+		}
+		else if( !map->IsObstructed(ox, oy - stepdy) )
+		{
+			oy -= stepdy;
 		}
 	}
 
-	if( imax > 0 )
+	dx = ox - owner->x.get(0);
+	dy = oy - owner->y.get(0);
+	if( dx != 0 || dy != 0 )
 	{
-		owner->xc = 0.0f; owner->yc = 0.0f;
-		int x0 = owner->x.get(0), y0 = owner->y.get(0);
 		for(int i = 0; i < owner->sym.size(); i++)
 		{
-			int dxx = owner->x.get(i) - x0;
-			int dyy = owner->y.get(i) - y0;
-			owner->x.set(x0 + dx[imax] + dxx,i);
-			owner->y.set(y0 + dy[imax] + dyy,i);
-			owner->xc += owner->x.get(i);
-			owner->yc += owner->y.get(i);
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
 		}
-		owner->xc /= static_cast<float>(owner->sym.size());
-		owner->yc /= static_cast<float>(owner->sym.size());
+		map->Action(owner, ox, oy);
+		if( !owner->entity->IsDead() ) for(int i = 0; i < owner->sym.size(); i++) map->SetCreature(owner->x.get(i), owner->y.get(i));
 	}
+
+	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, target);
 }
 
 void CreatureAI::RandomWalk(Object *owner)

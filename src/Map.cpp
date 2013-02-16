@@ -367,40 +367,48 @@ void Map::GetCreatureChances(int caveType)
 		{
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
-			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
 			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
+			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
 			break;
 		}
 		case Engine::CAVETYPE_02:
 		{
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
-			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
 			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
+			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
 			break;
 		}
 		case Engine::CAVETYPE_03:
 		{
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
-			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
 			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
+			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
 			break;
 		}
 		case Engine::CAVETYPE_04:
 		{
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
-			object_chances.insert(pair<int, int>(CreatureAI::NORMAL,     30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 30));
+			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
 			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
+			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
 			break;
 		}
 		default: break;
@@ -564,7 +572,7 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Goblin
-		case CreatureAI::NORMAL:
+		case CreatureAI::REGULAR:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORC_PEON);
 			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "An Orc", 0.5f, true);
@@ -574,7 +582,7 @@ void Map::AddCreature(int x, int y)
 			Health health = Health(15, 0, -7);
 			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "An Orc Corpse");
 			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI(CreatureAI::NORMAL);
+			creature->entity->ai = new CreatureAI(CreatureAI::REGULAR);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
@@ -611,6 +619,21 @@ void Map::AddCreature(int x, int y)
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
 		}
+		case CreatureAI::CHARGER:
+		{
+			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORGE_PEON_GREEN);
+			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Troll", 1.5f, true);
+						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+			Stats stats = Stats(30, 8, 4, 15, 4, 0, 0, 0, 0, 0);
+						//  Health(hp, mp, xpnext)
+			Health health = Health(30, 0, -15);
+			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "A Troll Corpse");
+			creature->container = new Container(10);
+			creature->entity->ai = new CreatureAI(CreatureAI::CHARGER);
+			objects.push(creature);
+			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
+			break;
+		}
 		// Demon
 		case CreatureAI::SPAWNER:
 		{
@@ -623,6 +646,21 @@ void Map::AddCreature(int x, int y)
 			creature->entity = new Entity(Entity::HUMANOID, stats, health, CHAR_SKULL, TCODColor::white, "A Demon Corpse");
 			creature->container = new Container(10);
 			creature->entity->ai = new CreatureAI(CreatureAI::SPAWNER);
+			objects.push(creature);
+			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
+			break;
+		}
+		case CreatureAI::SEEKER:
+		{
+			xlist.push(x); ylist.push(y); symlist.push(CHAR_DEMON_PEON);
+			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Demon", 0.5f, true);
+						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+			Stats stats = Stats(30, 6, 5, 10, 6, 0, 0, 0, 0, 0);
+						//  Health(hp, mp, xpnext)
+			Health health = Health(30, 0, -15);
+			creature->entity = new Entity(Entity::HUMANOID, stats, health, CHAR_SKULL, TCODColor::white, "A Demon Corpse");
+			creature->container = new Container(10);
+			creature->entity->ai = new CreatureAI(CreatureAI::SEEKER);
 			objects.push(creature);
 			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
 			break;
