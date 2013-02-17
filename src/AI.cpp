@@ -260,7 +260,7 @@ void CreatureAI::RunAway(Object *owner, Object *target)
 	float distance = sqrtf(dx*dx + dy*dy);
 	Map *map = &engine->map[engine->mapID];
 
-	if( distance > sqrt(2.0f) && distance <= 10.0f )
+	if( distance > sqrt(2.0f) )
 	{
 		dx = (int)(round(dx/distance));
 		dy = (int)(round(dy/distance));
@@ -341,7 +341,7 @@ void CreatureAI::ChaseOrAttack(Object *owner, Object *target)
 	float distance = sqrtf(dx*dx + dy*dy);
 	Map *map = &engine->map[engine->mapID];
 
-	if( distance > sqrt(2.0f) && distance <= 10.0f )
+	if( distance > sqrt(2.0f) )
 	{
 		dx = (int)(round(dx/distance));
 		dy = (int)(round(dy/distance));
