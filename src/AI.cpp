@@ -260,6 +260,13 @@ void CreatureAI::RunAway(Object *owner, Object *target)
 	float distance = sqrtf(dx*dx + dy*dy);
 	Map *map = &engine->map[engine->mapID];
 
+				//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+	Stats stats = Stats(0, 0, 0, 0, 15, 0, 0, 0, 0, 0);
+				//  Health(hp, mp, xpnext)
+	Health health = Health(0, 0, 0);
+	Condition *condition = new Condition(Condition::NONE, 0, -1, stats, health, NULL, NULL, NULL);
+	owner->entity->conditions->addToBack(condition);
+
 	if( distance > sqrt(2.0f) )
 	{
 		dx = (int)(round(dx/distance));
@@ -340,6 +347,13 @@ void CreatureAI::ChaseOrAttack(Object *owner, Object *target)
 	int stepdy = (dy > 0 ? 1: -1);
 	float distance = sqrtf(dx*dx + dy*dy);
 	Map *map = &engine->map[engine->mapID];
+
+				//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+	Stats stats = Stats(0, 0, 0, 0, 15, 0, 0, 0, 0, 0);
+				//  Health(hp, mp, xpnext)
+	Health health = Health(0, 0, 0);
+	Condition *condition = new Condition(Condition::NONE, 0, -1, stats, health, NULL, NULL, NULL);
+	owner->entity->conditions->addToBack(condition);
 
 	if( distance > sqrt(2.0f) )
 	{
