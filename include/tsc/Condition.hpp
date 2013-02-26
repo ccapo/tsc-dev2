@@ -23,7 +23,7 @@ class Condition
 		ACU_PLUS,					// Increased Acuity
 
 		// Abilities
-		FARSIGHTED,					// Increased Visual Perception
+		FAR_SIGHTED,					// Increased Visual Perception
 		MASK_SCENT,					// Mask Scent from Creatures
 		LEVITATION,					// Float Above the Ground
 		CREATURE_SENSE,				// Sense Presence of Creatures
@@ -42,7 +42,7 @@ class Condition
 		ACU_MINUS,					// Decreased Acuity
 
 		// Afflictions
-		NEARSIGHTED,				// Decreased Visual Perception
+		NEAR_SIGHTED,				// Decreased Visual Perception
 		CONFUSION,					// Random Movement
 		PARALYSIS,					// Inability to Move or Attack
 		POISON,						// Decreases HP

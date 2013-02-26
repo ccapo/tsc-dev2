@@ -1,5 +1,69 @@
 #include "Main.hpp"
 
+void AI::WalkPattern(Object *owner)
+{
+	static int x = owner->x.get(0), y = owner->y.get(0);
+	Map *map = &engine->map[engine->mapID];
+
+	// Increment along prescribed pattern list
+	ListPattern(owner, x, y);
+
+	for(int j = 0; j < owner->sym.size(); j++)
+	{
+		map->RevertCell(owner->x.get(j), owner->y.get(j));
+		map->Activated(owner->x.get(j), owner->y.get(j), false);
+	}
+	map->Action(owner, x, y);
+	if( !owner->entity->IsDead() ) for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
+}
+
+void AI::ListPattern(Object *owner, int &x, int &y)
+{
+	static bool second = false;
+	static int patternCounter = 0, patternMax = 0;
+	static int stepCounter = 0, stepMax = 0;
+	Map *map = &engine->map[engine->mapID];
+
+	patternMax = patternList.size();
+	stepMax = patternData[patternCounter].size();
+
+	int dx = patternData[patternCounter][stepCounter].x;
+	int dy = patternData[patternCounter][stepCounter].y;
+
+	owner->obstructs = false;
+	bool obstructed = map->IsObstructed(owner->x.get(0) + dx, owner->y.get(0) + dy);
+	for(int j = 1; j < owner->sym.size(); j++)
+	{
+		obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx, owner->y.get(j) + dy);
+	}
+	owner->obstructs = true;
+
+	if( !obstructed )
+	{
+		x += dx;
+		y += dy;
+	}
+	owner->entity->base_stats.spd += patternData[patternCounter][stepCounter].spd;
+
+	stepCounter = (stepCounter + 1) % stepMax;
+	if( stepCounter == 0 )
+	{
+		patternCounter = (patternCounter + 1) % patternMax;
+		if( patternCounter == 0 )
+		{
+			if( second )
+			{
+				second = false;
+				PatternEnsemble(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
+			}
+			else
+			{
+				second = true;
+			}
+		}
+	}
+}
+
 bool PlayerAI::Update(Object *owner)
 {
 	static float elapsed = 1.0f/50.0f;
@@ -72,6 +136,19 @@ void PlayerAI::UpdateConfused(Object *owner, int &dx, int &dy)
 		dx = rng->getInt(-1, 1);
 		dy = rng->getInt(-1, 1);
 		owner->sym = rng->getInt(CHAR_PLAYER_RIGHT, CHAR_PLAYER_UP);
+	}
+}
+
+CreatureAI::CreatureAI(AIType type): type(type)
+{
+	switch( type )
+	{
+		case PATROLLER:
+		{
+			PatternEnsemble(rng->getInt(VERTICAL_PATTERN, HORIZONTAL_PATTERN));
+			break;
+		}
+		default: break;
 	}
 }
 
@@ -168,6 +245,15 @@ bool CreatureAI::Update(Object *owner)
 			case PATROLLER:
 			{
 				RandomWalk(owner);
+				WalkPattern(owner);
+
+				if( !engine->player->entity->IsDead() )
+				{
+					float dx = owner->xc - engine->player->xc;
+					float dy = owner->yc - engine->player->yc;
+					float distance = sqrtf(dx*dx + dy*dy);
+					if( distance <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
+				}
 				break;
 			}
 			case CHARGER:
@@ -192,7 +278,6 @@ bool CreatureAI::Update(Object *owner)
 				{
 					RandomWalk(owner);
 				}
-
 				break;
 			}
 			default: break;
@@ -429,70 +514,6 @@ bool BossAI::Update(Object *owner)
 	}
 
 	return true;
-}
-
-void BossAI::WalkPattern(Object *owner)
-{
-	static int x = owner->x.get(0), y = owner->y.get(0);
-	Map *map = &engine->map[engine->mapID];
-
-	// Increment along prescribed pattern list
-	ListPattern(owner, x, y);
-
-	for(int j = 0; j < owner->sym.size(); j++)
-	{
-		map->RevertCell(owner->x.get(j), owner->y.get(j));
-		map->Activated(owner->x.get(j), owner->y.get(j), false);
-	}
-	map->Action(owner, x, y);
-	if( !owner->entity->IsDead() ) for(int j = 0; j < owner->sym.size(); j++) map->SetCreature(owner->x.get(j), owner->y.get(j));
-}
-
-void BossAI::ListPattern(Object *owner, int &x, int &y)
-{
-	static bool second = false;
-	static int patternCounter = 0, patternMax = 0;
-	static int stepCounter = 0, stepMax = 0;
-	Map *map = &engine->map[engine->mapID];
-
-	patternMax = patternList.size();
-	stepMax = patternData[patternCounter].size();
-
-	int dx = patternData[patternCounter][stepCounter].x;
-	int dy = patternData[patternCounter][stepCounter].y;
-
-	owner->obstructs = false;
-	bool obstructed = map->IsObstructed(owner->x.get(0) + dx, owner->y.get(0) + dy);
-	for(int j = 1; j < owner->sym.size(); j++)
-	{
-		obstructed = obstructed || map->IsObstructed(owner->x.get(j) + dx, owner->y.get(j) + dy);
-	}
-	owner->obstructs = true;
-
-	if( !obstructed )
-	{
-		x += dx;
-		y += dy;
-	}
-	owner->entity->base_stats.spd += patternData[patternCounter][stepCounter].spd;
-
-	stepCounter = (stepCounter + 1) % stepMax;
-	if( stepCounter == 0 )
-	{
-		patternCounter = (patternCounter + 1) % patternMax;
-		if( patternCounter == 0 )
-		{
-			if( second )
-			{
-				second = false;
-				PatternEnsemble(rng->getInt(VERTICAL_PATTERN, NPATTERNTYPES - 1));
-			}
-			else
-			{
-				second = true;
-			}
-		}
-	}
 }
 
 bool NpcAI::Update(Object *owner)
