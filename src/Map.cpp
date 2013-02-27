@@ -368,8 +368,7 @@ void Map::GetCreatureChances(int caveType)
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
 			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
-			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 25));
 			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
@@ -380,8 +379,7 @@ void Map::GetCreatureChances(int caveType)
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
 			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
-			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 25));
 			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
@@ -392,8 +390,7 @@ void Map::GetCreatureChances(int caveType)
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
 			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
-			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 25));
 			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
@@ -404,8 +401,7 @@ void Map::GetCreatureChances(int caveType)
 			object_chances.clear();
 			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
 			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
-			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
-			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
+			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 25));
 			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
@@ -604,21 +600,6 @@ void Map::AddCreature(int x, int y)
 			break;
 		}
 		// Troll
-		case CreatureAI::PATROLLER:
-		{
-			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORGE_PEON_GREEN);
-			Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Troll", 1.5f, true);
-						//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
-			Stats stats = Stats(30, 8, 4, 15, 4, 0, 0, 0, 0, 0);
-						//  Health(hp, mp, xpnext)
-			Health health = Health(30, 0, -15);
-			creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "A Troll Corpse");
-			creature->container = new Container(10);
-			creature->entity->ai = new CreatureAI(CreatureAI::PATROLLER);
-			objects.push(creature);
-			for(int i = 0; i < creature->sym.size(); i++) SetCreature(creature->x.get(i), creature->y.get(i));
-			break;
-		}
 		case CreatureAI::CHARGER:
 		{
 			xlist.push(x); ylist.push(y); symlist.push(CHAR_ORGE_PEON_GREEN);
@@ -729,6 +710,7 @@ int Map::RandomChoiceIndex(TCODList<int> chances)
 		}
 	}
 	if(choice >= chances.size()) choice = chances.size() - 1;
+
 
 	return choice;
 }

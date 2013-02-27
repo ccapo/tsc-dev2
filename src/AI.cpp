@@ -165,11 +165,6 @@ bool CreatureAI::Update(Object *owner)
 				}
 				break;
 			}
-			case PATROLLER:
-			{
-				RandomWalk(owner);
-				break;
-			}
 			case CHARGER:
 			{
 				RandomWalk(owner);

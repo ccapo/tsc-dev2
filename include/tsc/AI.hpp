@@ -32,7 +32,6 @@ class CreatureAI: public AI
 		SKITTISH,
 		REGULAR,
 		AGGRESSIVE,
-		PATROLLER,
 		CHARGER,
 		SPAWNER,
 		SEEKER,
