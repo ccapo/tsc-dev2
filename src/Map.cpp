@@ -366,10 +366,10 @@ void Map::GetCreatureChances(int caveType)
 		case Engine::CAVETYPE_01:
 		{
 			object_chances.clear();
-			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,    5));
+			object_chances.insert(pair<int, int>(CreatureAI::SKITTISH,   30));
 			object_chances.insert(pair<int, int>(CreatureAI::REGULAR,    30));
 			object_chances.insert(pair<int, int>(CreatureAI::AGGRESSIVE, 20));
-			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,  30));
+			object_chances.insert(pair<int, int>(CreatureAI::PATROLLER,   5));
 			object_chances.insert(pair<int, int>(CreatureAI::CHARGER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SPAWNER,     5));
 			object_chances.insert(pair<int, int>(CreatureAI::SEEKER,      5));
@@ -683,7 +683,7 @@ void Map::AddBoss(int x, int y)
 	Health health = Health(100, 100, -50);
 	boss->entity = new Entity(Entity::BOSS, stats, health, CHAR_RUBBLE_PILE, TCODColor::peach, "A Pile of Entrails");
 	boss->container = new Container(10);
-	boss->entity->ai = new BossAI(rng->getInt(AI::VERTICAL_PATTERN, BossAI::NPATTERNTYPES - 1));
+	boss->entity->ai = new BossAI(rng->getInt(BossAI::VERTICAL_PATTERN, BossAI::NPATTERNTYPES - 1));
 	objects.push(boss);
 	for(int i = 0; i < boss->sym.size(); i++) SetCreature(boss->x.get(i), boss->y.get(i));
 }
@@ -729,7 +729,6 @@ int Map::RandomChoiceIndex(TCODList<int> chances)
 		}
 	}
 	if(choice >= chances.size()) choice = chances.size() - 1;
-
 
 	return choice;
 }

@@ -8,6 +8,68 @@
 class AI
 {
 	public:
+	AI(){}
+	virtual ~AI(){}
+	virtual bool Update(Object *owner) = 0;
+};
+
+class PlayerAI: public AI
+{
+	public:
+	PlayerAI() {}
+	~PlayerAI() {}
+	bool Update(Object *owner);
+
+	protected:
+	void UpdateConfused(Object *owner, int &dx, int &dy);
+};
+
+class CreatureAI: public AI
+{
+	public:
+	enum AIType
+	{
+		SKITTISH,
+		REGULAR,
+		AGGRESSIVE,
+		PATROLLER,
+		CHARGER,
+		SPAWNER,
+		SEEKER,
+		NAITYPES
+	} type;
+
+	CreatureAI(AIType type): type(type) {}
+	~CreatureAI() {}
+	bool Update(Object *owner);
+
+	protected:
+	Object *ClosestEntity(Object *owner) const;
+	void RandomWalk(Object *owner);
+	void ChaseOrAttack(Object *owner, Object *target);
+	void RunAway(Object *owner, Object *target);
+};
+
+class BossAI: public AI
+{
+	public:
+	enum PatternType
+	{
+		VERTICAL_PATTERN,
+		HORIZONTAL_PATTERN,
+		PLUS_PATTERN,
+		X_PATTERN,
+		ASTERISK_PATTERN,
+		LEFT_ACUTE_ANGLE_PATTERN,
+		RIGHT_ACUTE_ANGLE_PATTERN,
+		TRIANGLE_PATTERN,
+		INVERTED_TRIANGLE_PATTERN,
+		DUMBBELL_PATTERN,
+		ZIGZAG_DUMBBELL_PATTERN,
+		SQUARE_COVERLEAF_PATTERN,
+		SPIRAL_ZIGZAG_PATTERN,
+		NPATTERNTYPES
+	};
 	enum MovementType
 	{
 		DONT_MOVE,
@@ -28,30 +90,15 @@ class AI
 		SPIRAL_OUT,
 		NMOVEMENTTYPES
 	};
-	enum PatternType
-	{
-		VERTICAL_PATTERN,
-		HORIZONTAL_PATTERN,
-		PLUS_PATTERN,
-		X_PATTERN,
-		ASTERISK_PATTERN,
-		LEFT_ACUTE_ANGLE_PATTERN,
-		RIGHT_ACUTE_ANGLE_PATTERN,
-		TRIANGLE_PATTERN,
-		INVERTED_TRIANGLE_PATTERN,
-		DUMBBELL_PATTERN,
-		ZIGZAG_DUMBBELL_PATTERN,
-		SQUARE_COVERLEAF_PATTERN,
-		SPIRAL_ZIGZAG_PATTERN,
-		NPATTERNTYPES
-	};
 	TCODList<int> patternList;
 	map<int, PointType> patternData[PATTERNMAX];
 
-	AI(){}
-	virtual ~AI(){}
-	virtual bool Update(Object *owner) = 0;
+	BossAI() {}
+	BossAI(int type);
+	~BossAI() {}
+	bool Update(Object *owner);
 
+	protected:
 	void WalkPattern(Object *owner);
 	void ListPattern(Object *owner, int &x, int &y);
 
@@ -491,52 +538,6 @@ class AI
 			default: break;
 		}
 	}
-};
-
-class PlayerAI: public AI
-{
-	public:
-	PlayerAI() {}
-	~PlayerAI() {}
-	bool Update(Object *owner);
-
-	protected:
-	void UpdateConfused(Object *owner, int &dx, int &dy);
-};
-
-class CreatureAI: public AI
-{
-	public:
-	enum AIType
-	{
-		SKITTISH,
-		REGULAR,
-		AGGRESSIVE,
-		PATROLLER,
-		CHARGER,
-		SPAWNER,
-		SEEKER,
-		NAITYPES
-	} type;
-
-	CreatureAI(AIType type);
-	~CreatureAI() {}
-	bool Update(Object *owner);
-
-	protected:
-	Object *ClosestEntity(Object *owner) const;
-	void RandomWalk(Object *owner);
-	void ChaseOrAttack(Object *owner, Object *target);
-	void RunAway(Object *owner, Object *target);
-};
-
-class BossAI: public AI
-{
-	public:
-	BossAI() {}
-	BossAI(int type);
-	~BossAI() {}
-	bool Update(Object *owner);
 };
 
 class NpcAI: public AI
