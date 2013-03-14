@@ -75,6 +75,77 @@ void PlayerAI::UpdateConfused(Object *owner, int &dx, int &dy)
 	}
 }
 
+bool NpcAI::Update(Object *owner)
+{
+	Map *map = &engine->map[engine->mapID];
+
+	if( owner->entity->ai->arrived )
+	{
+		owner->entity->ai->arrived = false;
+		int xTarget = rng->getInt(1, map->width - 2);
+		int yTarget = rng->getInt(1, map->height - 2);
+		while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
+		{
+			xTarget = rng->getInt(1, map->width - 2);
+			yTarget = rng->getInt(1, map->height - 2);
+		}
+		owner->entity->ai->xTarget = xTarget;
+		owner->entity->ai->yTarget = yTarget;
+	}
+	else
+	{
+		MoveToTarget(owner);
+		for(int i = 0; i < owner->sym.size(); i++)
+		{
+			if( owner->x.get(i) == owner->entity->ai->xTarget && owner->y.get(i) == owner->entity->ai->yTarget )
+			{
+				owner->entity->ai->arrived = true;
+			}
+		}
+	}
+	return true;
+}
+
+void NpcAI::MoveToTarget(Object *owner)
+{
+	int ox = owner->x.get(0), oy = owner->y.get(0);
+	int dx = owner->entity->ai->xTarget - ox;
+	int dy = owner->entity->ai->yTarget - oy;
+	int stepdx = (dx > 0 ? 1: -1);
+	int stepdy = (dy > 0 ? 1: -1);
+	float distance = sqrtf(dx*dx + dy*dy);
+	Map *map = &engine->map[engine->mapID];
+
+	dx = (int)(round(dx/distance));
+	dy = (int)(round(dy/distance));
+	if( !map->IsObstructed(ox + dx, oy + dy) )
+	{
+		ox += dx;
+		oy += dy;
+	}
+	else if( !map->IsObstructed(ox + stepdx, oy) )
+	{
+		ox += stepdx;
+	}
+	else if( !map->IsObstructed(ox, oy + stepdy) )
+	{
+		oy += stepdy;
+	}
+
+	dx = ox - owner->x.get(0);
+	dy = oy - owner->y.get(0);
+	if( dx != 0 || dy != 0 )
+	{
+		for(int i = 0; i < owner->sym.size(); i++)
+		{
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
+		}
+		map->Action(owner, ox, oy);
+		for(int i = 0; i < owner->sym.size(); i++) map->SetNpc(owner->x.get(i), owner->y.get(i));
+	}
+}
+
 bool CreatureAI::Update(Object *owner)
 {
 	static float elapsed = 1.0f/50.0f;
@@ -167,7 +238,24 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case CHARGER:
 			{
-				RandomWalk(owner);
+				// Target Player Only
+				Object *target = engine->player;
+				if( target && !target->entity->IsDead() )
+				{
+					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					{
+						ChargeTarget(owner, target);
+					}
+					else
+					{
+						RandomWalk(owner);
+					}
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
 				break;
 			}
 			case SPAWNER:
@@ -385,9 +473,75 @@ void CreatureAI::ChaseOrAttack(Object *owner, Object *target)
 	if( distance <= sqrt(2.0f) ) owner->entity->Attack(owner, target);
 }
 
-BossAI::BossAI(int type)
+void CreatureAI::ChargeTarget(Object *owner, Object *target)
 {
-	PatternEnsemble(type);
+	static const int dxx[NBLOCK - 1] = {-1,  0, +1, -1, +1, -1,  0, +1};
+	static const int dyy[NBLOCK - 1] = {-1, -1, -1,  0,  0, +1, +1, +1};
+
+	if( owner->entity->ai->arrived )
+	{
+		owner->entity->ai->arrived = false;
+		owner->entity->ai->xTarget = target->x.get(0);
+		owner->entity->ai->yTarget = target->y.get(0);
+	}
+
+	int ox = owner->x.get(0), oy = owner->y.get(0);
+	int dx = owner->entity->ai->xTarget - ox;
+	int dy = owner->entity->ai->yTarget - oy;
+	int stepdx = (dx > 0 ? 1: -1);
+	int stepdy = (dy > 0 ? 1: -1);
+	float distance = sqrtf(dx*dx + dy*dy);
+	Map *map = &engine->map[engine->mapID];
+
+				//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+	Stats stats = Stats(0, 0, 0, 0, 35, 0, 0, 0, 0, 0);
+				//  Health(hp, mp, xpnext)
+	Health health = Health(0, 0, 0);
+	Condition *condition = new Condition(Condition::NONE, 0, -1, stats, health, NULL, NULL, NULL);
+	owner->entity->conditions->addToBack(condition);
+
+	if( distance > sqrt(2.0f) )
+	{
+		dx = (int)(round(dx/distance));
+		dy = (int)(round(dy/distance));
+		if( !map->IsObstructed(ox + dx, oy + dy) )
+		{
+			ox += dx;
+			oy += dy;
+		}
+		else if( !map->IsObstructed(ox + stepdx, oy) )
+		{
+			ox += stepdx;
+		}
+		else if( !map->IsObstructed(ox, oy + stepdy) )
+		{
+			oy += stepdy;
+		}
+	}
+
+	dx = ox - owner->x.get(0);
+	dy = oy - owner->y.get(0);
+	if( dx != 0 || dy != 0 )
+	{
+		for(int i = 0; i < owner->sym.size(); i++)
+		{
+			map->RevertCell(owner->x.get(i), owner->y.get(i));
+			map->Activated(owner->x.get(i), owner->y.get(i), false);
+		}
+		map->Action(owner, ox, oy);
+		if( !owner->entity->IsDead() ) for(int i = 0; i < owner->sym.size(); i++) map->SetCreature(owner->x.get(i), owner->y.get(i));
+	}
+
+	if( distance <= sqrt(2.0f) )
+	{
+		for(int i = 0; i < NBLOCK - 1; i++)
+		{
+			Object *tmp = map->GetEntity(owner->x.get(0) + dxx[i], owner->y.get(0) + dyy[i]);
+			if( !tmp && target->x.get(0) == owner->x.get(0) + dxx[i] && target->y.get(0) == owner->y.get(0) + dyy[i] ) tmp = target;
+			if( tmp ) owner->entity->Attack(owner, tmp);
+		}
+		owner->entity->ai->arrived = true;
+	}
 }
 
 bool BossAI::Update(Object *owner)
@@ -416,10 +570,8 @@ bool BossAI::Update(Object *owner)
 
 		if( !engine->player->entity->IsDead() )
 		{
-			float dx = owner->xc - engine->player->xc;
-			float dy = owner->yc - engine->player->yc;
-			float distance = sqrtf(dx*dx + dy*dy);
-			if( distance <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
+			float dx = owner->xc - engine->player->xc, dy = owner->yc - engine->player->yc, d = sqrtf(dx*dx + dy*dy);
+			if( d <= 1.5f*sqrt(2.0f) ) owner->entity->Attack(owner, engine->player);
 		}
 	}
 
@@ -471,10 +623,10 @@ void BossAI::ListPattern(Object *owner, int &x, int &y)
 	}
 	owner->entity->base_stats.spd += patternData[patternCounter][stepCounter].spd;
 
-	stepCounter = (stepCounter + 1) % stepMax;
+	stepCounter = (stepCounter + 1) % MAX(1, stepMax);
 	if( stepCounter == 0 )
 	{
-		patternCounter = (patternCounter + 1) % patternMax;
+		patternCounter = (patternCounter + 1) % MAX(1, patternMax);
 		if( patternCounter == 0 )
 		{
 			if( second )
@@ -487,71 +639,5 @@ void BossAI::ListPattern(Object *owner, int &x, int &y)
 				second = true;
 			}
 		}
-	}
-}
-
-bool NpcAI::Update(Object *owner)
-{
-	static bool arrived = true;
-	static int xTarget = 0, yTarget = 0;
-	Map *map = &engine->map[engine->mapID];
-
-	if( arrived )
-	{
-		arrived = false;
-		xTarget = rng->getInt(1, map->width - 2);
-		yTarget = rng->getInt(1, map->height - 2);
-		while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
-		{
-			xTarget = rng->getInt(1, map->width - 2);
-			yTarget = rng->getInt(1, map->height - 2);
-		}
-	}
-	else
-	{
-		MoveToTarget(owner, xTarget, yTarget);
-		for(int i = 0; i < owner->sym.size(); i++) if( owner->x.get(i) == xTarget && owner->y.get(i) == yTarget ) arrived = true;
-	}
-
-	return true;
-}
-
-void NpcAI::MoveToTarget(Object *owner, int targetx, int targety)
-{
-	int ox = owner->x.get(0), oy = owner->y.get(0);
-	int dx = targetx - ox;
-	int dy = targety - oy;
-	int stepdx = (dx > 0 ? 1: -1);
-	int stepdy = (dy > 0 ? 1: -1);
-	float distance = sqrtf(dx*dx + dy*dy);
-	Map *map = &engine->map[engine->mapID];
-
-	dx = (int)(round(dx/distance));
-	dy = (int)(round(dy/distance));
-	if( !map->IsObstructed(ox + dx, oy + dy) )
-	{
-		ox += dx;
-		oy += dy;
-	}
-	else if( !map->IsObstructed(ox + stepdx, oy) )
-	{
-		ox += stepdx;
-	}
-	else if( !map->IsObstructed(ox, oy + stepdy) )
-	{
-		oy += stepdy;
-	}
-
-	dx = ox - owner->x.get(0);
-	dy = oy - owner->y.get(0);
-	if( dx != 0 || dy != 0 )
-	{
-		for(int i = 0; i < owner->sym.size(); i++)
-		{
-			map->RevertCell(owner->x.get(i), owner->y.get(i));
-			map->Activated(owner->x.get(i), owner->y.get(i), false);
-		}
-		map->Action(owner, ox, oy);
-		for(int i = 0; i < owner->sym.size(); i++) map->SetNpc(owner->x.get(i), owner->y.get(i));
 	}
 }
