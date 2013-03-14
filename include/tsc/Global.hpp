@@ -418,15 +418,6 @@ enum CharType
 	CHAR_FINAL_BOSS_LR
 };
 
-class PointType
-{
-	public:
-	int x, y;
-	int spd;
-	PointType(): x(0), y(0), spd(0) {}
-	PointType(int x, int y, int spd): x(x), y(y), spd(spd) {}
-};
-
 // Clamps the first argument between the second two
 template <class T>
 inline T Clamp(T &arg, const T &minVal, const T &maxVal)

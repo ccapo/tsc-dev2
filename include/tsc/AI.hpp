@@ -5,10 +5,32 @@
 #include "Object.hpp"
 #include "Map.hpp"
 
+struct MovementData
+{
+	int x, y, spd;
+	MovementData(): x(0), y(0), spd(0) {}
+	MovementData(int x, int y, int spd): x(x), y(y), spd(spd) {}
+};
+
 class AI
 {
 	public:
-	AI(){}
+	enum AIType
+	{
+		PLAYER,
+		NPC,
+		SKITTISH,
+		REGULAR,
+		AGGRESSIVE,
+		CHARGER,
+		SPAWNER,
+		SEEKER,
+		BOSS,
+		NAITYPES
+	} type;
+	bool arrived;
+	int xTarget, yTarget;
+	AI(): type(PLAYER), arrived(true), xTarget(-1), yTarget(-1) {}
 	virtual ~AI(){}
 	virtual bool Update(Object *owner) = 0;
 };
@@ -16,7 +38,7 @@ class AI
 class PlayerAI: public AI
 {
 	public:
-	PlayerAI() {}
+	PlayerAI() { type = PLAYER; }
 	~PlayerAI() {}
 	bool Update(Object *owner);
 
@@ -24,21 +46,21 @@ class PlayerAI: public AI
 	void UpdateConfused(Object *owner, int &dx, int &dy);
 };
 
+class NpcAI: public AI
+{
+	public:
+	NpcAI() { type = NPC; }
+	~NpcAI() {}
+	bool Update(Object *owner);
+
+	protected:
+	void MoveToTarget(Object *owner);
+};
+
 class CreatureAI: public AI
 {
 	public:
-	enum AIType
-	{
-		SKITTISH,
-		REGULAR,
-		AGGRESSIVE,
-		CHARGER,
-		SPAWNER,
-		SEEKER,
-		NAITYPES
-	} type;
-
-	CreatureAI(AIType type): type(type) {}
+	CreatureAI(AIType aiType) { type = aiType; }
 	~CreatureAI() {}
 	bool Update(Object *owner);
 
@@ -47,6 +69,7 @@ class CreatureAI: public AI
 	void RandomWalk(Object *owner);
 	void ChaseOrAttack(Object *owner, Object *target);
 	void RunAway(Object *owner, Object *target);
+	void ChargeTarget(Object *owner, Object *target);
 };
 
 class BossAI: public AI
@@ -69,6 +92,18 @@ class BossAI: public AI
 		SPIRAL_ZIGZAG_PATTERN,
 		NPATTERNTYPES
 	};
+	TCODList<int> patternList;
+	map<int, MovementData> patternData[PATTERNMAX];
+
+	BossAI(int patternType)
+	{
+		type = BOSS;
+		PatternEnsemble(patternType);
+	}
+	~BossAI() {}
+	bool Update(Object *owner);
+
+	protected:
 	enum MovementType
 	{
 		DONT_MOVE,
@@ -89,15 +124,7 @@ class BossAI: public AI
 		SPIRAL_OUT,
 		NMOVEMENTTYPES
 	};
-	TCODList<int> patternList;
-	map<int, PointType> patternData[PATTERNMAX];
 
-	BossAI() {}
-	BossAI(int type);
-	~BossAI() {}
-	bool Update(Object *owner);
-
-	protected:
 	void WalkPattern(Object *owner);
 	void ListPattern(Object *owner, int &x, int &y);
 
@@ -118,8 +145,6 @@ class BossAI: public AI
 				patternList.push(MOVE_UP);
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_DOWN);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -129,8 +154,6 @@ class BossAI: public AI
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_RIGHT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -141,13 +164,10 @@ class BossAI: public AI
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_UP);
-
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_LEFT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -158,13 +178,10 @@ class BossAI: public AI
 				patternList.push(MOVE_DOWN_LEFT);
 				patternList.push(MOVE_DOWN_LEFT);
 				patternList.push(MOVE_UP_RIGHT);
-
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(MOVE_DOWN_RIGHT);
 				patternList.push(MOVE_DOWN_RIGHT);
 				patternList.push(MOVE_UP_LEFT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -173,29 +190,20 @@ class BossAI: public AI
 				// Asterisk Pattern
 				patternList.push(MOVE_UP);
 				patternList.push(MOVE_DOWN);
-
 				patternList.push(MOVE_UP_RIGHT);
 				patternList.push(MOVE_DOWN_LEFT);
-
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_LEFT);
-
 				patternList.push(MOVE_DOWN_RIGHT);
 				patternList.push(MOVE_UP_LEFT);
-
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_UP);
-
 				patternList.push(MOVE_DOWN_LEFT);
 				patternList.push(MOVE_UP_RIGHT);
-
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_RIGHT);
-
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(MOVE_DOWN_RIGHT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -206,8 +214,6 @@ class BossAI: public AI
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_RIGHT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -218,8 +224,6 @@ class BossAI: public AI
 				patternList.push(MOVE_UP_RIGHT);
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_LEFT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -234,8 +238,6 @@ class BossAI: public AI
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_LEFT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -250,8 +252,6 @@ class BossAI: public AI
 				patternList.push(MOVE_DOWN_LEFT);
 				patternList.push(MOVE_UP_LEFT);
 				patternList.push(MOVE_UP_LEFT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -264,8 +264,6 @@ class BossAI: public AI
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(CIRCLE_CLOCKWISE);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -276,8 +274,6 @@ class BossAI: public AI
 				patternList.push(CIRCLE_COUNTERCLOCKWISE);
 				patternList.push(ZIGZAG_RIGHT);
 				patternList.push(CIRCLE_CLOCKWISE);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -288,23 +284,18 @@ class BossAI: public AI
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_LEFT);
-
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_UP);
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_DOWN);
-
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_UP);
 				patternList.push(MOVE_RIGHT);
-
 				patternList.push(MOVE_RIGHT);
 				patternList.push(MOVE_DOWN);
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_UP);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -317,8 +308,6 @@ class BossAI: public AI
 				patternList.push(ZIGZAG_DOWN);
 				patternList.push(MOVE_UP_RIGHT);
 				patternList.push(MOVE_UP_RIGHT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -327,8 +316,6 @@ class BossAI: public AI
 				// Default Pattern
 				patternList.push(MOVE_LEFT);
 				patternList.push(MOVE_RIGHT);
-
-				//patternList.push(DONT_MOVE);
 				//patternList.push(DONT_MOVE);
 				break;
 			}
@@ -345,209 +332,183 @@ class BossAI: public AI
 		{
 			case DONT_MOVE:
 			{	// Move Left										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+0, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +0, +0)));
 				break;
 			}
 			case MOVE_UP:
 			{	// Move Up											x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
 				break;
 			}
 			case MOVE_DOWN:
 			{	// Move Down										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
 				break;
 			}
 			case MOVE_LEFT:
 			{	// Move Left										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
 				break;
 			}
 			case MOVE_RIGHT:
 			{	// Move Right										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
 				break;
 			}
 			case MOVE_UP_LEFT:
 			{	// Move Up Left										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
 				break;
 			}
 			case MOVE_UP_RIGHT:
 			{	// Move Up Right									x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
 				break;
 			}
 			case MOVE_DOWN_LEFT:
 			{	// Move Down Left									x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
 				break;
 			}
 			case MOVE_DOWN_RIGHT:
 			{	// Move Down Right									x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
 				break;
 			}
 			case CIRCLE_CLOCKWISE:
 			{	// Circle Clockwise									x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +25)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, -25)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +25)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, -25)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
 				break;
 			}
 			case CIRCLE_COUNTERCLOCKWISE:
 			{	// Circle Counter-Clockwise							x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +25)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, -25)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +25)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, -25)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
 				break;
 			}
 			case ZIGZAG_LEFT:
 			{	// Zig-Zag Left										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
 				break;
 			}
 			case ZIGZAG_RIGHT:
 			{	// Zig-Zag Right									x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
 				break;
 			}
 			case ZIGZAG_UP:
 			{	// Zig-Zag Up										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
 				break;
 			}
 			case ZIGZAG_DOWN:
 			{	// Zig-Zag Down										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
 				break;
 			}
 			case SPIRAL_OUT:
 			{	// Spiral Out										x, y, spd
-				patternData[index].insert(make_pair(i++, PointType(-1, +0, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+0, -1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+1, -1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+1, +1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(-2, +2, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-1, +0, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(-2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-1, -1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, -2, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+2, -2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+1, -1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +25)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +0, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+2, +2, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-				patternData[index].insert(make_pair(i++, PointType(+0, +2, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(-2, +1, +0)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +1, +0)));
-
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, -25)));
-				patternData[index].insert(make_pair(i++, PointType(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-1, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+1, -1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+1, +1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-1, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-1, -1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, -2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+1, -1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +25)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +0, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+2, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(+0, +2, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +1, +0)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, -25)));
+				patternData[index].insert(make_pair(i++, MovementData(-2, +0, +0)));
 				break;
 			}
 			default: break;
 		}
 	}
-};
-
-class NpcAI: public AI
-{
-	public:
-	NpcAI() {}
-	~NpcAI() {}
-	bool Update(Object *owner);
-
-	protected:
-	void MoveToTarget(Object *owner, int targetx, int targety);
 };
 
 #endif
