@@ -22,7 +22,7 @@ class AI
 		SKITTISH,
 		REGULAR,
 		AGGRESSIVE,
-		CHARGER,
+		PATROLLER,
 		SPAWNER,
 		SEEKER,
 		BOSS,
@@ -69,7 +69,7 @@ class CreatureAI: public AI
 	void RandomWalk(Object *owner);
 	void ChaseOrAttack(Object *owner, Object *target);
 	void RunAway(Object *owner, Object *target);
-	void ChargeTarget(Object *owner, Object *target);
+	void MoveToTarget(Object *owner);
 };
 
 class BossAI: public AI
