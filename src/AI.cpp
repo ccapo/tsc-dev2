@@ -164,14 +164,21 @@ bool CreatureAI::Update(Object *owner)
 		{
 			case SKITTISH:
 			{
-				// Target closest entity
-				Object *target = ClosestEntity(owner);
-				if( target && !target->entity->IsDead() )
+				if( !owner->entity->hasCondition(Condition::CONFUSION) )
 				{
-					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
-					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					// Target closest entity
+					Object *target = ClosestEntity(owner);
+					if( target && !target->entity->IsDead() )
 					{
-						RunAway(owner, target);
+						float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+						if( d < 10.0f )
+						{
+							RunAway(owner, target);
+						}
+						else
+						{
+							RandomWalk(owner);
+						}
 					}
 					else
 					{
@@ -186,14 +193,21 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case REGULAR:
 			{
-				// Target Player Only
-				Object *target = engine->player;
-				if( target && !target->entity->IsDead() )
+				if( !owner->entity->hasCondition(Condition::CONFUSION) )
 				{
-					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
-					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					// Target Player Only
+					Object *target = engine->player;
+					if( target && !target->entity->IsDead() )
 					{
-						ChaseOrAttack(owner, target);
+						float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+						if( d < 10.0f )
+						{
+							ChaseOrAttack(owner, target);
+						}
+						else
+						{
+							RandomWalk(owner);
+						}
 					}
 					else
 					{
@@ -208,14 +222,21 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case AGGRESSIVE:
 			{
-				// Target closest entity
-				Object *target = ClosestEntity(owner);
-				if( target && !target->entity->IsDead() )
+				if( !owner->entity->hasCondition(Condition::CONFUSION) )
 				{
-					float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
-					if( d < 10.0f && !owner->entity->hasCondition(Condition::CONFUSION) )
+					// Target closest entity
+					Object *target = ClosestEntity(owner);
+					if( target && !target->entity->IsDead() )
 					{
-						ChaseOrAttack(owner, target);
+						float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+						if( d < 10.0f )
+						{
+							ChaseOrAttack(owner, target);
+						}
+						else
+						{
+							RandomWalk(owner);
+						}
 					}
 					else
 					{
@@ -230,10 +251,10 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case PATROLLER:
 			{
-				// Target Player Only
-				Object *target = engine->player;
 				if( !owner->entity->hasCondition(Condition::CONFUSION) )
 				{
+					// Target Player Only
+					Object *target = engine->player;
 					if( target && !target->entity->IsDead() )
 					{
 						float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
@@ -481,6 +502,12 @@ void CreatureAI::MoveToTarget(Object *owner)
 {
 	Map *map = &engine->map[engine->mapID];
 
+	int ox = owner->x.get(0), oy = owner->y.get(0);
+	ox = Clamp<int>(ox, 1, map->width - 2);
+	oy = Clamp<int>(oy, 1, map->height - 2);
+	owner->x.set(ox, 0);
+	owner->y.set(oy, 0);
+
 	if( owner->entity->ai->arrived )
 	{
 		owner->entity->ai->arrived = false;
@@ -491,64 +518,41 @@ void CreatureAI::MoveToTarget(Object *owner)
 		{
 			case 1:
 			{	// Up
-				xTarget = owner->x.get(0);
-				yTarget = owner->y.get(0) - 10;
-				yTarget = Clamp<int>(yTarget, 1, map->height - 2);
-				while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
-				{
-					yTarget++;
-					yTarget = Clamp<int>(yTarget, 1, map->height - 2);
-				}
+				xTarget = ox;
+				yTarget = oy - 10;
 				break;
 			}
 			case 2:
 			{	// Down
-				xTarget = owner->x.get(0);
-				yTarget = owner->y.get(0) + 10;
-				yTarget = Clamp<int>(yTarget, 1, map->height - 2);
-				while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
-				{
-					yTarget--;
-					yTarget = Clamp<int>(yTarget, 1, map->height - 2);
-				}
+				xTarget = ox;
+				yTarget = oy + 10;
 				break;
 			}
 			case 3:
 			{	// Left
-				xTarget = owner->x.get(0) - 10;
-				yTarget = owner->y.get(0);
-				xTarget = Clamp<int>(xTarget, 1, map->width - 2);
-				while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
-				{
-					xTarget++;
-					xTarget = Clamp<int>(xTarget, 1, map->width - 2);
-				}
+				xTarget = ox - 10;
+				yTarget = oy;
 				break;
 			}
 			case 4:
 			{	// Right
-				xTarget = owner->x.get(0) + 10;
-				yTarget = owner->y.get(0);
-				xTarget = Clamp<int>(xTarget, 1, map->width - 2);
-				while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
-				{
-					xTarget--;
-					xTarget = Clamp<int>(xTarget, 1, map->width - 2);
-				}
+				xTarget = ox + 10;
+				yTarget = oy;
 				break;
 			}
 			default: break;
 		}
+		xTarget = Clamp<int>(xTarget, 1, map->width - 2);
+		yTarget = Clamp<int>(yTarget, 1, map->height - 2);
 		owner->entity->ai->xTarget = xTarget;
 		owner->entity->ai->yTarget = yTarget;
 	}
 
-	int ox = owner->x.get(0), oy = owner->y.get(0);
 	int dx = owner->entity->ai->xTarget - ox;
 	int dy = owner->entity->ai->yTarget - oy;
 	int stepdx = (dx > 0 ? 1: -1);
 	int stepdy = (dy > 0 ? 1: -1);
-	float distance = sqrtf(dx*dx + dy*dy);
+	float distance = MAX(1.0f, sqrtf(dx*dx + dy*dy));
 
 	dx = (int)(round(dx/distance));
 	dy = (int)(round(dy/distance));
@@ -564,6 +568,10 @@ void CreatureAI::MoveToTarget(Object *owner)
 	else if( !map->IsObstructed(ox, oy + stepdy) )
 	{
 		oy += stepdy;
+	}
+	else
+	{
+		owner->entity->ai->arrived = true;
 	}
 
 	dx = ox - owner->x.get(0);
