@@ -24,29 +24,42 @@ bool PlayerAI::Update(Object *owner)
 	{
       	owner->entity->displacement = 0.0f;
 
-		if( TCODConsole::isKeyPressed(TCODK_UP) )
+		if( !owner->entity->hasCondition(Condition::CONFUSION) )
 		{
-			dy = -1;
-			owner->sym.set(CHAR_PLAYER_UP,0);
-			UpdateConfused(owner, dx, dy);
+			if( TCODConsole::isKeyPressed(TCODK_UP) )
+			{
+				dy = -1;
+				owner->sym.set(CHAR_PLAYER_UP,0);
+			}
+			if( TCODConsole::isKeyPressed(TCODK_DOWN) )
+			{
+				dy = +1;
+				owner->sym.set(CHAR_PLAYER_DOWN,0);
+			}
+			if( TCODConsole::isKeyPressed(TCODK_LEFT) )
+			{
+				dx = -1;
+				owner->sym.set(CHAR_PLAYER_LEFT,0);
+			}
+			if( TCODConsole::isKeyPressed(TCODK_RIGHT) )
+			{
+				dx = +1;
+				owner->sym.set(CHAR_PLAYER_RIGHT,0);
+			}
 		}
-		if( TCODConsole::isKeyPressed(TCODK_DOWN) )
+		else
 		{
-			dy = +1;
-			owner->sym.set(CHAR_PLAYER_DOWN,0);
-			UpdateConfused(owner, dx, dy);
-		}
-		if( TCODConsole::isKeyPressed(TCODK_LEFT) )
-		{
-			dx = -1;
-			owner->sym.set(CHAR_PLAYER_LEFT,0);
-			UpdateConfused(owner, dx, dy);
-		}
-		if( TCODConsole::isKeyPressed(TCODK_RIGHT) )
-		{
-			dx = +1;
-			owner->sym.set(CHAR_PLAYER_RIGHT,0);
-			UpdateConfused(owner, dx, dy);
+			bool moved = false;
+			moved = moved || TCODConsole::isKeyPressed(TCODK_UP);
+			moved = moved || TCODConsole::isKeyPressed(TCODK_DOWN);
+			moved = moved || TCODConsole::isKeyPressed(TCODK_LEFT);
+			moved = moved || TCODConsole::isKeyPressed(TCODK_RIGHT);
+			if( moved )
+			{
+				dx = rng->getInt(-1, 1);
+				dy = rng->getInt(-1, 1);
+				owner->sym.set(rng->getInt(CHAR_PLAYER_RIGHT, CHAR_PLAYER_UP), 0);
+			}
 		}
 	}
 
@@ -63,16 +76,6 @@ bool PlayerAI::Update(Object *owner)
 	engine->mapID = static_cast<Engine::CaveTypes>(owner->entity->mapID);
 
 	return true;
-}
-
-void PlayerAI::UpdateConfused(Object *owner, int &dx, int &dy)
-{
-	if( owner->entity->hasCondition(Condition::CONFUSION) )
-	{
-		dx = rng->getInt(-1, 1);
-		dy = rng->getInt(-1, 1);
-		owner->sym = rng->getInt(CHAR_PLAYER_RIGHT, CHAR_PLAYER_UP);
-	}
 }
 
 bool NpcAI::Update(Object *owner)
