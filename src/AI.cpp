@@ -91,12 +91,18 @@ void NpcAI::MoveToTarget(Object *owner)
 	if( owner->entity->ai->arrived )
 	{
 		owner->entity->ai->arrived = false;
+
+		int OldxTarget = owner->x.get(0);
+		int OldyTarget = owner->y.get(0);
 		int xTarget = rng->getInt(1, map->width - 2);
 		int yTarget = rng->getInt(1, map->height - 2);
-		while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP )
+		float distance = sqrtf((OldxTarget - xTarget)*(OldxTarget - xTarget) + (OldyTarget - yTarget)*(OldyTarget - yTarget));
+
+		while( map->IsObstructed(xTarget, yTarget) || map->CellType(xTarget, yTarget) == Feature::TRAP || distance < 10.0f )
 		{
 			xTarget = rng->getInt(1, map->width - 2);
 			yTarget = rng->getInt(1, map->height - 2);
+			distance = sqrtf((OldxTarget - xTarget)*(OldxTarget - xTarget) + (OldyTarget - yTarget)*(OldyTarget - yTarget));
 		}
 		owner->entity->ai->xTarget = xTarget;
 		owner->entity->ai->yTarget = yTarget;
