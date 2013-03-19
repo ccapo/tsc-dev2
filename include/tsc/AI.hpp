@@ -43,7 +43,6 @@ class PlayerAI: public AI
 	bool Update(Object *owner);
 
 	protected:
-	void UpdateConfused(Object *owner, int &dx, int &dy);
 };
 
 class NpcAI: public AI
