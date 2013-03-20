@@ -69,6 +69,7 @@ class CreatureAI: public AI
 	void ChaseOrAttack(Object *owner, Object *target);
 	void RunAway(Object *owner, Object *target);
 	void MoveToTarget(Object *owner);
+	void SpawnSubordinates(Object *owner);
 };
 
 class BossAI: public AI

@@ -289,7 +289,33 @@ bool CreatureAI::Update(Object *owner)
 			}
 			case SPAWNER:
 			{
-				RandomWalk(owner);
+				if( !owner->entity->hasCondition(Condition::CONFUSION) )
+				{
+					// Target Player Only
+					Object *target = engine->player;
+					if( target && !target->entity->IsDead() )
+					{
+						float dx = owner->xc - target->xc, dy = owner->yc - target->yc, d = sqrtf(dx*dx + dy*dy);
+						if( d < 10.0f )
+						{
+							ChaseOrAttack(owner, target);
+						}
+						else
+						{
+							RandomWalk(owner);
+						}
+					}
+					else
+					{
+						RandomWalk(owner);
+					}
+					// If number of subordinates is less than max, then spawn more
+					//if( owner->entity->ai->nSubordinates < owner->entity->ai->nMaxSubordinates ) SpawnSubordinates(owner);
+				}
+				else
+				{
+					RandomWalk(owner);
+				}
 				break;
 			}
 			case SEEKER:
