@@ -764,19 +764,3 @@ Object *Map::GetEntity(int x, int y) const
 	}
 	return NULL;
 }
-
-Object *Map::GetEntity(int id) const
-{
-	for(int i = objects.size() - 1; i >= 0; i--)
-	{
-		Object *object = objects.get(i);
-		if( object->entity && !object->entity->IsDead() )
-		{
-			for(int j = 0; j < object->sym.size(); j++)
-			{
-				if( object->id == id ) return object;
-			}
-		}
-	}
-	return NULL;
-}

@@ -23,7 +23,6 @@ class Object
 	};
 
 	// Basic Attributes
-	int id;							// Object's identifier
 	TCODList<int> x, y;				// Object's position list on the map
 	float xc, yc;					// Object's central position on the map
 	TCODList<int> sym;				// Object's symbol list on the map
