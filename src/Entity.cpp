@@ -80,6 +80,22 @@ void Entity::Death(Object *owner)
 	// Transform the Entity into a corpse!
 	if( owner->entity->ai )
 	{
+		if( owner->entity->ai->subordinates.size() > 0 )
+		{
+			for(int i = 0; i < owner->entity->ai->subordinates.size(); i++)
+			{
+				Object *subordinate = owner->entity->ai->subordinates.get(i);
+				subordinate->entity->ai->superior = NULL;
+			}
+		}
+
+		if( owner->entity->ai->superior )
+		{
+			Object *superior = owner->entity->ai->superior;
+			superior->entity->ai->subordinates.remove(owner);
+		}
+		owner->entity->ai->superior = NULL;
+
 		delete owner->entity->ai;
 		owner->entity->ai = NULL;
 	}

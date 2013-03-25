@@ -165,6 +165,9 @@ bool CreatureAI::Update(Object *owner)
 	// Increment displacement
 	owner->entity->displacement += elapsed*static_cast<float>(owner->entity->stats.spd);
 
+	// Increment spawn delay
+	owner->entity->ai->spawnDelay += elapsed*owner->entity->ai->spawnRate;
+
 	if( owner->entity->displacement >= 1.0f )
 	{
       	owner->entity->displacement = 0.0f;
@@ -309,8 +312,19 @@ bool CreatureAI::Update(Object *owner)
 					{
 						RandomWalk(owner);
 					}
+
 					// If number of subordinates is less than max, then spawn more
-					//if( owner->entity->ai->nSubordinates < owner->entity->ai->nMaxSubordinates ) SpawnSubordinates(owner);
+					if( owner->entity->ai->subordinates.size() < owner->entity->ai->nMaxSubordinates )
+					{
+						owner->entity->ai->spawnDelay = MIN(owner->entity->ai->spawnDelay, 1.0f);
+
+						if( owner->entity->ai->spawnDelay >= 1.0f )
+						{
+					      	owner->entity->ai->spawnDelay = 0.0f;
+
+							SpawnSubordinates(owner);
+						}
+					}
 				}
 				else
 				{
@@ -623,6 +637,43 @@ void CreatureAI::MoveToTarget(Object *owner)
 	}
 
 	if( distance <= 1.0f ) owner->entity->ai->arrived = true;
+}
+
+void CreatureAI::SpawnSubordinates(Object *owner)
+{
+	int x0 = owner->x.get(0), y0 = owner->y.get(0);
+	Map *map = &engine->map[engine->mapID];
+
+	//map->GetCreatureChances(map->type);
+	int x = x0 + rng->getInt(-5, 5);
+	int y = y0 + rng->getInt(-5, 5);
+	x = Clamp<int>(x, 1, map->width - 2);
+	y = Clamp<int>(y, 1, map->height - 2);
+	while( map->IsObstructed(x, y) || map->CellType(x, y) == Feature::TRAP )
+	{
+		x = x0 + rng->getInt(-5, 5);
+		y = y0 + rng->getInt(-5, 5);
+		x = Clamp<int>(x, 1, map->width - 2);
+		y = Clamp<int>(y, 1, map->height - 2);
+	}
+	//map->AddCreature(x, y);
+
+	TCODList<int> xlist, ylist, symlist;
+	xlist.push(x); ylist.push(y); symlist.push(CHAR_FLAYER_WARRIOR);
+	Object *creature = new Object(xlist, ylist, symlist, TCODColor::white, "A Flayer Warrior", 0.5f, true);
+				//Stats(hpmax, ap, dp, str, spd, mpmax, map, mdp, wil, acu)
+	Stats stats = Stats(15, 5, 3, 5, 5, 0, 0, 0, 0, 0);
+				//  Health(hp, mp, xpnext)
+	Health health = Health(15, 0, -7);
+	creature->entity = new Entity(Entity::TROGLODYTE, stats, health, CHAR_SKULL, TCODColor::white, "A Flayer Corpse");
+	creature->container = new Container(10);
+	creature->entity->ai = new CreatureAI(AI::REGULAR);
+	map->objects.push(creature);
+	for(int i = 0; i < creature->sym.size(); i++) map->SetCreature(creature->x.get(i), creature->y.get(i));
+
+	creature->entity->ai->superior = owner;
+
+	owner->entity->ai->subordinates.push(creature);
 }
 
 bool BossAI::Update(Object *owner)

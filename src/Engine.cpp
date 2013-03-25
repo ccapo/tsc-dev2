@@ -422,6 +422,8 @@ void Engine::GenerateCaveSystem()
 	int srcMapID = 0;
 	int srcDepth = -5;
 	int srcCaveType = srcDepth/5;
+
+	map[srcMapID].type = srcCaveType;
 	map[srcMapID].GenerateMap(srcCaveType);
 
 	// Seed Brownian Tree Cave System
@@ -510,6 +512,8 @@ void Engine::GenerateCaveSystem()
 		int srcMapID = caveData[offset].mapID;
 		int srcDepth = caveData[offset].depth;
 		int srcCaveType = srcDepth/5;
+
+		map[srcMapID].type = srcCaveType;
 		map[srcMapID].GenerateMap(srcCaveType);
 
 		//printf("Map: %d, Depth: %d\n", srcMapID, srcDepth);
@@ -577,22 +581,24 @@ void Engine::GenerateCaveSystem()
 	}
 	//printf("Max Depth: %d\n", g_depthMax);
 
+#ifdef DEV
 	// Store Map Information In A PGM Image
-	//FILE *fout = fopen("image.pgm", "w");
-	//fprintf(fout, "P2\n%d %d\n%d\n", NSIZE, NSIZE, g_depthMax + 1);
-	//for(int y = 0; y < NSIZE; y++)
-	//{
-	//	for(int x = 0; x < NSIZE; x++)
-	//	{
-	//		offset =  x + y*NSIZE;
-	//		fprintf(fout, "%d ", caveData[offset].occupied ? caveData[offset].depth : g_depthMax + 1);
-	//	}
-	//	fprintf(fout, "\n");
-	//}
-	//fclose(fout);
+	FILE *fout = fopen("cave_system.pgm", "w");
+	fprintf(fout, "P2\n%d %d\n%d\n", NSIZE, NSIZE, g_depthMax + 1);
+	for(int y = 0; y < NSIZE; y++)
+	{
+		for(int x = 0; x < NSIZE; x++)
+		{
+			offset =  x + y*NSIZE;
+			fprintf(fout, "%d ", caveData[offset].occupied ? caveData[offset].depth : g_depthMax + 1);
+		}
+		fprintf(fout, "\n");
+	}
+	fclose(fout);
 
 	// Convert PGM Image to PNG Image
-	//system("convert image.pgm image.png; rm image.pgm");
+	system("convert cave_system.pgm cave_system.png; rm cave_system.pgm");
+#endif
 }
 
 void Engine::Update()

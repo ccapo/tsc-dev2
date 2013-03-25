@@ -30,7 +30,11 @@ class AI
 	} type;
 	bool arrived;
 	int xTarget, yTarget;
-	AI(): type(PLAYER), arrived(true), xTarget(-1), yTarget(-1) {}
+	int nSubordinates, nMaxSubordinates;
+	float spawnRate, spawnDelay;
+	Object *superior;
+	TCODList<Object *> subordinates;
+	AI(): type(PLAYER), arrived(true), xTarget(-1), yTarget(-1), nSubordinates(0), nMaxSubordinates(2), spawnRate(1.0f/2.0f), spawnDelay(0.0f), superior(NULL) {}
 	virtual ~AI(){}
 	virtual bool Update(Object *owner) = 0;
 };
@@ -39,7 +43,7 @@ class PlayerAI: public AI
 {
 	public:
 	PlayerAI() { type = PLAYER; }
-	~PlayerAI() {}
+	~PlayerAI() { subordinates.clear(); }
 	bool Update(Object *owner);
 
 	protected:
@@ -49,7 +53,7 @@ class NpcAI: public AI
 {
 	public:
 	NpcAI() { type = NPC; }
-	~NpcAI() {}
+	~NpcAI() { subordinates.clear(); }
 	bool Update(Object *owner);
 
 	protected:
@@ -60,7 +64,7 @@ class CreatureAI: public AI
 {
 	public:
 	CreatureAI(AIType aiType) { type = aiType; }
-	~CreatureAI() {}
+	~CreatureAI() { subordinates.clear(); }
 	bool Update(Object *owner);
 
 	protected:
@@ -100,7 +104,7 @@ class BossAI: public AI
 		type = BOSS;
 		PatternEnsemble(patternType);
 	}
-	~BossAI() {}
+	~BossAI() { subordinates.clear(); }
 	bool Update(Object *owner);
 
 	protected:

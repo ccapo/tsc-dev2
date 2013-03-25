@@ -28,12 +28,12 @@ class Cell
 class Map
 {
 	public:
-	int width, height;
+	int width, height, type;
 	int nCreatures, nNpcs, nItems, nTraps;
 	map<int, int> object_chances;
 	TCODList<Object *> objects;
 
-	Map(): width(DISPLAY_WIDTH), height(DISPLAY_HEIGHT - PANEL_HEIGHT - 1), nCreatures(5), nNpcs(5), nItems(16), nTraps(4)
+	Map(): width(DISPLAY_WIDTH), height(DISPLAY_HEIGHT - PANEL_HEIGHT - 1), type(-1), nCreatures(10), nNpcs(0), nItems(4), nTraps(4)
 	{
 		cells = new Cell[width*height];
 	}
@@ -81,6 +81,7 @@ class Map
 	bool IsObstructed(int x, int y) const;
 	Object *GetObject(int x, int y) const;
 	Object *GetEntity(int x, int y) const;
+	Object *GetEntity(int id) const;
 
 	protected:
 	Cell *cells;
