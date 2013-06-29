@@ -81,6 +81,7 @@ class Map
 	bool IsObstructed(int x, int y) const;
 	Object *GetObject(int x, int y) const;
 	Object *GetEntity(int x, int y) const;
+	Object *GetEntity(int id) const;
 
 	protected:
 	Cell *cells;

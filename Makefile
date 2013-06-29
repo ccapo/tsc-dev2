@@ -4,9 +4,9 @@ LIBDIR = lib
 CPP = g++
 UPX = upx -qq
 
-#CFLAGS = -O2 -s -w -I$(INCDIR)/tsc -I$(INCDIR)/tcod
-#CFLAGS = -O2 -s -w -I$(INCDIR)/tsc -I$(INCDIR)/tcod -DDEV
-CFLAGS = -O0 -g -Wall -I$(INCDIR)/tsc -I$(INCDIR)/tcod -DDEV
+CFLAGS = -O1 -s -w -I$(INCDIR)/tsc -I$(INCDIR)/tcod
+#CFLAGS = -O1 -s -w -I$(INCDIR)/tsc -I$(INCDIR)/tcod -DDEV
+#CFLAGS = -O0 -g -Wall -I$(INCDIR)/tsc -I$(INCDIR)/tcod -DDEV
 
 # Determine if operating system is 32-bit or 64-bit
 ifeq ($(shell uname -m),x86_64)
@@ -37,7 +37,7 @@ all: tsc
 tsc: $(HEADERS) $(OBJECTS)
 	$(CPP) $(CFLAGS) $(OBJECTS) -o $@ $(LFLAGS)
 	rm -f $(OBJECTS)
-#	$(UPX) $@
+	$(UPX) $@
 
 clean:
 	rm -f $(OBJECTS)
